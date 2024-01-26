@@ -1,0 +1,313 @@
+<!DOCTYPE html>
+<html>
+
+<head>
+    <script src="https://d3js.org/d3.v7.min.js"></script>
+    <style>
+        .server-column {
+            fill: rgb(4, 9, 19);
+            filter: drop-shadow(0px 0px 10px #0079FF);
+        }
+
+        .tableRect {
+            stroke: #E4FBFF;
+            stroke-width: 3;
+        }
+
+        .tableName {
+            font-size: 12px;
+            fill: white;
+            text-anchor: middle;
+        }
+
+        .item {
+            width: 50px;
+            height: 50px;
+            background: linear-gradient(360deg, rgba(144, 4, 237, 1) 0%, rgba(250, 61, 61, 0.1) 100%);
+        }
+
+
+        .rotate-img {
+            transform: rotate(90deg);
+
+        }
+
+        .circleText {
+            font-size: 12px;
+        }
+    </style>
+</head>
+
+<body>
+    <svg id="system"></svg>
+    <script>
+        var servers = ["WEB", "WAS", "DB"];
+        var requests = [
+            { id: "req1", name: 'service1', actions: ['register', 'WEBWAS', 'WASDB', 'DBWAS', 'WASWEB', 'ungister'], time: 1500, state: [], stateCount: 0, status: 'normal' },
+            { id: "req2", name: 'service2', actions: ['register', 'WEBWAS', 'WASDB', 'DBWAS', 'WASWEB', 'ungister'], time: 3000, state: [], stateCount: 0, status: 'warning' },
+            { id: "req3", name: 'service3', actions: ['register', 'WEBWAS', 'WASDB', 'DBWAS', 'WASWEB', 'ungister'], time: 9000, state: [], stateCount: 0, status: 'error' },
+            { id: "req4", name: 'service4', actions: ['register', 'WEBWAS', 'WASDB', 'DBWAS', 'WASWEB', 'ungister'], time: 8400, state: [], stateCount: 0, status: 'warning' },
+            { id: "req5", name: 'service5', actions: ['register', 'WEBWAS', 'WASDB', 'DBWAS', 'WASWEB', 'ungister'], time: 5000, state: [], stateCount: 0, status: 'normal' },
+            { id: "req6", name: 'service6', actions: ['register', 'WEBWAS', 'WASDB', 'DBWAS', 'WASWEB', 'ungister'], time: 2000, state: [], stateCount: 0, status: 'error' },
+            { id: "req7", name: 'service7', actions: ['register', 'WEBWAS', 'WASDB', 'DBWAS', 'WASWEB', 'ungister'], time: 4000, state: [], stateCount: 0, status: 'warning' },
+            { id: "req8", name: 'service8', actions: ['register', 'WEBWAS', 'WASDB', 'DBWAS', 'WASWEB', 'ungister'], time: 7000, state: [], stateCount: 0, status: 'normal' },
+            { id: "req9", name: 'service9', actions: ['register', 'WEBWAS', 'WASDB', 'DBWAS', 'WASWEB', 'ungister'], time: 8000, state: [], stateCount: 0, status: 'normal' },
+            { id: "req10", name: 'service10', actions: ['register', 'WEBWAS', 'WASDB', 'DBWAS', 'WASWEB', 'ungister'], time: 1000, state: [], stateCount: 0, status: 'error' },
+
+        ];
+
+        requests.sort((a, b) => a.time - b.time)
+
+        let width = 1200;
+        let height = 300;
+
+
+        var svg = d3.select("#system")
+            .attr("width", width)
+            .attr("height", height)
+            .append("g");
+
+        svg.selectAll(".server-column")
+            .data(servers)
+            .enter().append("rect")
+            .attr("class", "server-column")
+            .attr("x", function (d, i) {
+                return i * (width / servers.length) + ((width / servers.length)) / 2 - 100;
+            })
+            .attr("y", 0)
+            .attr("width", 800 / servers.length - 60)
+            .attr("height", 300)
+            .attr("stroke", "#0079FF")
+            .attr("stroke-width", 10)
+
+
+
+        function performAction(action, currentServer) {
+            switch (action) {
+                case "register":
+                    return 'WEB';
+                case "WEBWAS":
+                    return "WAS";
+                case "WASDB":
+                    return "DB";
+                case "DBWAS":
+                    return "WAS";
+                case "WASWEB":
+                    return "WEB";
+                case "ungister":
+                    if (currentServer === "WEB") {
+                        return "ungister";
+                    }
+                    return "WEB";
+                default:
+                    return null;
+            }
+        }
+
+        function getColor(status) {
+            switch (status) {
+                case 'normal':
+                    return 'steelblue';
+                case 'warning':
+                    return 'orange';
+                case 'error':
+                    return 'red';
+                default:
+                    return 'steelblue';
+            }
+        }
+
+        function getImageUrl(currentServer, nextServer) {
+
+            if (currentServer === "DB" && nextServer === "WAS") {
+                return "./rocket11.png";
+            } else if (currentServer === "WAS" && nextServer === "WEB") {
+                return "./rocket11.png";
+            } else if (currentServer === "WEB" && nextServer === "ungister") {
+                return "./rocket11.png";
+            }
+            else {
+                return "./rocket.png";
+            }
+        }
+
+
+
+        function moveRequestsSequentially(requests, currentIndex) {
+            if (currentIndex < requests.length) {
+                moveRequest(requests[currentIndex], currentIndex, 0, function () {
+                    moveRequestsSequentially(requests, currentIndex + 1);
+                });
+            }
+        }
+
+        var outerGroupElement = svg.append('g').attr("id", "outerGroup");
+
+        function moveRequest(request, index, actionIndex) {
+            var requestImage = svg.select("#" + request.id);
+            var requestText = svg.select("#text_" + request.id);
+
+            var currentIndex = servers.indexOf(request.current);
+            var currentServer = request.current;
+            var action = request.actions[actionIndex];
+            var nextServer = performAction(action, currentServer);
+            var nextIndex = servers.indexOf(nextServer);
+            var targetCircle = nextIndex * (width / servers.length) + (width / servers.length) / 2;
+            var targetRect = nextIndex * (width / servers.length) + (width / servers.length) / 2;
+
+
+            var imageUrl = getImageUrl(request.current, nextServer);
+
+
+            var groupElement = outerGroupElement.append('g')
+                .attr("id", "rectTable")
+                .attr("transform", function () {
+                    var row = Math.floor(index / 2);
+                    var col = index % 2;
+                    var translateX = col * 90;
+                    var translateY = row * 50;
+                    return "translate(" + translateX + "," + translateY + ")";
+                });
+
+            requestText.transition()
+                .duration(5000)
+                .delay(request.time)
+                .attr("x", targetCircle - 50)
+                .transition()
+                .duration(0)
+                .style("opacity", 1);
+
+            requestImage.transition()
+                .duration(5000)
+                .delay(request.time)
+                .attr("xlink:href", imageUrl)
+                .attr("x", targetCircle - 50)
+                .transition()
+                .duration(0)
+                .style("opacity", 1)
+                .on("end", function () {
+                    if (currentIndex < nextIndex) {
+                        var stateId = request.id + request.stateCount++;
+                        request.state.push(stateId);
+
+                        groupElement.append("rect")
+
+                            .attr("id", stateId)
+                            .attr("class", "tableRect")
+                            .attr("x", targetRect - 80)
+                            .attr("y", 30)
+                            .attr('width', 80)
+                            .attr('height', 40)
+                            .transition()
+                            .duration(1000)
+                            .style("fill", getColor(request.status));
+
+                        groupElement.append('text')
+                            .attr('id', stateId)
+                            .attr('class', 'tableName')
+
+                            .attr("x", targetRect - 40)
+
+                            .attr("y", 50)
+                            .transition()
+                            .duration(1000)
+                            .style("font-size", "20px")
+                            .text(request.name);
+                    }
+
+
+                    request.current = nextServer;
+
+                    if (request.current === "DB") {
+                        request.next = "WAS";
+                    } else if (request.current === "WAS") {
+                        if (currentIndex < nextIndex) {
+                            request.next = "DB";
+                        } else {
+                            request.next = "WEB";
+                            var lastStateId = request.state.pop();
+                            svg.selectAll("#" + lastStateId).attr("opacity", 0);
+                        }
+                    } else if (request.current === "WEB") {
+                        if (currentIndex < nextIndex) {
+                            request.next = "WAS";
+                        } else {
+                            request.next = "DB";
+                            var lastStateId = request.state.pop();
+                            svg.selectAll("#" + lastStateId).attr("opacity", 0);
+                        }
+                    }
+                    else if (request.current === "ungister") {
+                        if (currentIndex < nextIndex) {
+                            request.next = "WEB";
+                            requestImage.attr("opacity", 0);
+
+                        } else {
+                            request.next = "WAS";
+                            var lastStateId = request.state.pop();
+                            svg.selectAll("#" + lastStateId).attr("opacity", 0);
+                        }
+                    }
+
+
+
+                    if (actionIndex < request.actions.length - 1) {
+                        moveRequest(request, index, actionIndex + 1);
+
+                    } else {
+                        requestText.transition()
+                            .duration(0)
+                            .style("opacity", 0);
+                        requestImage.transition()
+                            .duration(0)
+                            .style("opacity", 0);
+
+                        setTimeout(function () {
+                            moveRequest(requests[index], index, 0);
+                        }, 2000);
+                    }
+                });
+        }
+
+        var circleGroupElement = svg.insert('g', ':first-child').attr("id", "circleGroup");
+
+        requests.forEach(function (request, index) {
+            var circlegroupElement = circleGroupElement.append('g')
+                .attr("id", "circleTable")
+                .attr("transform", function () {
+                    var row = Math.floor(index / 2);
+                    var col = index % 2;
+                    var translateX = col * 50;
+                    var translateY = row * 50;
+
+                    return "translate(" + translateX + "," + translateY + ")";
+                });
+
+            circlegroupElement.append("image")
+                .attr("id", request.id)
+                .attr("xlink:href", "./rocket.png")
+                .attr("x", -50)
+                .attr("y", 15)
+                .attr("width", 50)
+                .attr("height", 50)
+                .style("opacity", 0);
+
+            circlegroupElement.append('text')
+                .attr('id', 'text_' + request.id)
+                .attr('class', 'circleText')
+                .attr('x', 0)
+                .attr('y', 20)
+                .attr('fill', 'black')
+                .style("font-size", "18px")
+                .attr('text-anchor', 'start')
+                .style("opacity", 0)
+                .text(request.name);
+
+
+            moveRequest(request, index, 0);
+        });
+    </script>
+
+</body>
+
+</html>
