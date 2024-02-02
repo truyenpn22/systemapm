@@ -6,11 +6,11 @@
     <style>
         body {
             background: #1F2544;
+            margin: 0;
         }
 
         .server-column {
             fill: #1F2544;
-            filter: drop-shadow(0px 0px 10px #9FD2DB);
         }
 
         .tableRect {
@@ -23,35 +23,11 @@
             fill: white;
             text-anchor: middle;
         }
-
-        .item {
-            width: 50px;
-            height: 50px;
-            background: linear-gradient(360deg, rgba(144, 4, 237, 1) 0%, rgba(250, 61, 61, 0.1) 100%);
-        }
-
-
-        .rotate-img {
-            transform: rotate(90deg);
-
-        }
-
-        .circleText {
-            font-size: 12px;
-        }
-
-        .text {
-            display: flex;
-            justify-content: space-between;
-            align-items: center;
-        }
     </style>
 </head>
 
 <body>
     <svg id="system"></svg>
-
-
 
     <script>
         var servers = ["WEB", "WAS", "DB"];
@@ -64,17 +40,22 @@
             { id: "req6", name: 'service6', actions: ['register', 'WEBWAS', 'WASDB', 'DBWAS', 'WASWEB', 'ungister'], time: 2000, state: [], status: 'error' },
             { id: "req7", name: 'service7', actions: ['register', 'WEBWAS', 'WASDB', 'DBWAS', 'WASWEB', 'ungister'], time: 4000, state: [], status: 'warning' },
             { id: "req8", name: 'service8', actions: ['register', 'WEBWAS', 'WASDB', 'DBWAS', 'WASWEB', 'ungister'], time: 7000, state: [], status: 'error' },
-            { id: "req9", name: 'service9', actions: ['register', 'WEBWAS', 'WASDB', 'DBWAS', 'WASWEB', 'ungister'], time: 8000, state: [], status: 'error' },
+            { id: "req9", name: 'service9', actions: ['register', 'WEBWAS', 'WASDB', 'DBWAS', 'WASWEB', 'ungister'], time: 8000, state: [], status: 'warning' },
+            { id: "req10", name: 'service10', actions: ['register', 'WEBWAS', 'WASDB', 'DBWAS', 'WASWEB', 'ungister'], time: 4400, state: [], status: 'normal' },
+            { id: "req11", name: 'service11', actions: ['register', 'WEBWAS', 'WASDB', 'DBWAS', 'WASWEB', 'ungister'], time: 3200, state: [], status: 'warning' },
+            { id: "req12", name: 'service12', actions: ['register', 'WEBWAS', 'WASDB', 'DBWAS', 'WASWEB', 'ungister'], time: 7240, state: [], status: 'normal' },
+            { id: "req13", name: 'service13', actions: ['register', 'WEBWAS', 'WASDB', 'DBWAS', 'WASWEB', 'ungister'], time: 7240, state: [], status: 'normal' },
+            { id: "req14", name: 'service14', actions: ['register', 'WEBWAS', 'WASDB', 'DBWAS', 'WASWEB', 'ungister'], time: 3500, state: [], status: 'warning' },
+            { id: "req15", name: 'service15', actions: ['register', 'WEBWAS', 'WASDB', 'DBWAS', 'WASWEB', 'ungister'], time: 2400, state: [], status: 'error' },
         ];
 
-        requests.sort((a, b) => a.time - b.time)
+        requests.sort((a, b) => a.time - b.time);
 
         let width = 1800;
-        let height = 550;
+        let height = 580;
         let timerID;
         let stateIdCounter = 0;
         let errorTablesCount = 0;
-
 
         for (var i = 0; i < requests.length; i++) {
             if (requests[i].status === 'error') {
@@ -82,37 +63,121 @@
             }
         }
 
-
         var svg = d3.select("#system")
             .attr("width", width)
             .attr("height", height)
             .append("g");
 
-        svg.selectAll(".server-column")
-            .data(servers)
-            .enter().append("rect")
-            .attr("class", "server-column")
+        const filter = svg.append("defs")
+            .append("filter")
+            .attr("id", "drop-shadow")
+            .attr("x", "-50%")
+            .attr("y", "-50%")
+            .attr("width", "200%")
+            .attr("height", "200%");
 
-            .attr("x", function (d, i) {
-                return i * (width / servers.length) + ((width / servers.length)) / 2 - 120;
+        filter.append("feComponentTransfer")
+            .attr("in", "SourceAlpha")
+            .append("feFuncA")
+            .attr("type", "table")
+            .attr("tableValues", "1 0");
+
+        filter.append("feGaussianBlur")
+            .attr("stdDeviation", 30);
+
+        filter.append("feOffset")
+            .attr("dx", 0)
+            .attr("dy", 0)
+            .attr("result", "offsetblur");
+
+        filter.append("feFlood")
+            .attr("flood-color", "#7BD3EA")
+            .attr("result", "color");
+
+        filter.append("feComposite")
+            .attr("in2", "offsetblur")
+            .attr("operator", "in");
+
+        filter.append("feComposite")
+            .attr("in2", "SourceAlpha")
+            .attr("operator", "in");
+
+        const feMerge = filter.append("feMerge");
+        feMerge.append("feMergeNode")
+            .attr("in", "SourceGraphic");
+        feMerge.append("feMergeNode")
+            .attr("in", "comp");
+
+
+        svg.selectAll(".server-column2")
+            .data(servers)
+            .enter().append("circle")
+            .attr("class", "server-column2")
+
+            .attr("cx", function (d, i) {
+                return i * (width / servers.length) + ((width / servers.length)) / 2 + 50;
             })
-            .attr("y", 50)
+            .attr("r", 220)
             .attr("width", 1000 / servers.length)
+            .attr("height", 320)
             .transition()
             .duration(500)
-            .attr("height", 320)
-            .attr("stroke", "#9FD2DB")
-            .attr("stroke-width", 2)
+            .style("filter", "drop-shadow(0px 0px 15px #7BD3EA)")
+            .style("opacity", 0)
+            .attr("cy", -100)
+            .transition()
+            .duration(1200)
+            .delay(function (d, i) {
+                return i * 1000;
+            })
+            .style("opacity", 1)
+            .attr("cy", 230)
 
+
+        svg.selectAll(".server-column")
+            .data(servers)
+            .enter().append("circle")
+            .attr("class", "server-column")
+
+            .attr("cx", function (d, i) {
+                return i * (width / servers.length) + ((width / servers.length)) / 2 + 50;
+            })
+            .attr("r", 220)
+            .attr("width", 1000 / servers.length)
+            .attr("height", 320)
+            .attr("stroke", "#7BD3EA")
+            .attr("stroke-width", 2)
+            .transition()
+            .duration(500)
+            .style("opacity", 0)
+            .attr("cy", -100)
+            .transition()
+            .duration(1200)
+            .delay(function (d, i) {
+                return i * 1000;
+            })
+            .style("filter", "url(#drop-shadow)")
+            .style("opacity", 1)
+            .attr("cy", 230)
 
 
         var totalAnimationTime = requests.reduce(function (sum, request) {
             return Math.max(sum, request.time + 4000);
         }, 0);
 
+        function checkAndUpdateStatus(request) {
+            if (request.time > totalAnimationTime) {
+                request.status = 'error';
+            }
+        }
+
+        requests.forEach(checkAndUpdateStatus);
+
         if (timerID) {
             clearInterval(timerID);
         }
+
+
         setTimeout(function () {
             if (errorTablesCount >= 4) {
                 var warningIcon = svg.selectAll(".warning")
@@ -150,25 +215,9 @@
             .attr("x", function (d, i) {
                 return i * (width / servers.length) + ((width / servers.length)) / 2 - 210;
             })
-            .attr("y", 70)
+            .attr("y", 100)
             .attr("width", 500)
             .attr("height", 500)
-            .attr("filter", "drop-shadow(0px 0px 15px #9FD2DB)")
-
-        svg.selectAll(".server-column2")
-            .data(servers)
-            .enter().append("rect")
-            .attr("class", "server-column2")
-            .attr("x", function (d, i) {
-                return i * (width / servers.length) + ((width / servers.length)) / 2 - 120;
-            })
-            .attr("y", 10)
-            .attr("width", 1000 / servers.length)
-            .transition()
-            .duration(500)
-            .attr("height", 30)
-            .attr("stroke", "#9FD2DB")
-            .attr("stroke-width", 2)
 
 
         svg.selectAll(".text-server")
@@ -176,13 +225,24 @@
             .enter().append("text")
             .attr('class', 'textserver')
             .attr("x", function (d, i) {
-                return i * (width / servers.length) + ((width / servers.length)) / 2 + 20;
+                return i * (width / servers.length) + ((width / servers.length)) / 2 + 28;
             })
-            .attr("y", 30)
+            .attr("y", 40)
             .style("font-size", "20px")
             .attr("font-weight", 700)
             .style("fill", "#ffffff")
+            .transition()
+            .duration(500)
+            .style("opacity", 0)
+            .transition()
+            .duration(1200)
+            .delay(function (d, i) {
+                return i * 1500;
+            })
+            .style("filter", "url(#drop-shadow)")
+            .style("opacity", 1)
             .text(d => d);
+
 
         // ===============================================
 
@@ -236,7 +296,6 @@
         }
 
         function getImageUrl(currentServer, nextServer) {
-
             if (currentServer === "DB" && nextServer === "WAS") {
                 return "./img/rocket11.png";
             } else if (currentServer === "WAS" && nextServer === "WEB") {
@@ -249,13 +308,16 @@
             }
         }
 
-
-
-        function moveRequestsSequentially(requests, currentIndex) {
-            if (currentIndex < requests.length) {
-                moveRequest(requests[currentIndex], currentIndex, 0, function () {
-                    moveRequestsSequentially(requests, currentIndex + 1);
-                });
+        function getMargin(currentServer, nextServer) {
+            if (currentServer === "DB" && nextServer === "WAS") {
+                return "./img/rocket11.png";
+            } else if (currentServer === "WAS" && nextServer === "WEB") {
+                return "./img/rocket11.png";
+            } else if (currentServer === "WEB" && nextServer === "ungister") {
+                return "./img/rocket11.png";
+            }
+            else {
+                return "./img/rocket.png";
             }
         }
 
@@ -302,14 +364,14 @@
                 .attr("transform", function () {
                     var row = Math.floor(index / 3);
                     var col = index % 3;
-                    var translateX = col * 100;
-                    var translateY = row * 90;
+                    var translateX = col * 95;
+                    var translateY = row * 60;
                     return "translate(" + translateX + "," + translateY + ")";
                 });
 
 
             requestText.transition()
-                .duration(1000)
+                .duration(2000)
                 .delay(request.time)
                 .attr("x", targetCircle - 50)
                 .transition()
@@ -317,10 +379,11 @@
                 .style("opacity", 1);
 
             requestImage.transition()
-                .duration(1000)
+                .duration(2000)
                 .delay(request.time)
                 .attr("xlink:href", imageUrl)
-                .attr("x", targetCircle - 50)
+                .attr("x", targetCircle - 30)
+                .attr("y", 80)
                 .transition()
                 .duration(0)
                 .style("opacity", 1)
@@ -330,12 +393,13 @@
                         var stateId = "state_" + stateIdCounter;
                         request.state.push(stateId);
 
-                        groupElement.append("circle")
+                        groupElement.append("rect")
                             .attr("id", stateId)
                             .attr("class", "tableRect")
-                            .attr("cx", targetRect - 55)
-                            .attr("cy", 110)
-                            .attr("r", 40)
+                            .attr("x", targetRect - 80)
+                            .attr("y", 80)
+                            .attr("width", 80)
+                            .attr("height", 50)
                             .transition()
                             .duration(1000)
                             .style("fill", getColor(request.status))
@@ -361,7 +425,7 @@
                         groupElement.append('text')
                             .attr('id', stateId)
                             .attr('class', 'tableName')
-                            .attr("x", targetRect - 55)
+                            .attr("x", targetRect - 40)
                             .attr("y", 110)
                             .transition()
                             .duration(1000)
@@ -369,9 +433,7 @@
                             .text(request.name);
                     }
 
-
                     request.current = nextServer;
-
 
                     // ===============================================
 
@@ -407,7 +469,6 @@
                     else if (request.current === "ungister") {
                         if (currentIndex < nextIndex) {
                             request.next = "WEB";
-                            requestImage.remove();
 
                         } else {
                             request.next = "WAS";
@@ -449,8 +510,8 @@
                 .attr("transform", function () {
                     var row = Math.floor(index / 3);
                     var col = index % 3;
-                    var translateX = col * 50;
-                    var translateY = row * 50;
+                    var translateX = col * 80;
+                    var translateY = row * 60;
                     return "translate(" + translateX + "," + translateY + ")";
                 });
 
@@ -463,6 +524,7 @@
                 .attr("width", 50)
                 .attr("height", 50)
                 .style("opacity", 0)
+                .style("filter", "drop-shadow(2px 4px 15px #F9F54B)")
 
 
             circlegroupElement.append('text')
