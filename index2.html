@@ -31,37 +31,54 @@
 
     <script>
         var servers = ["WEB", "WAS", "DB"];
+        var possibleStatuses = ['normal', 'warning', 'error'];
+
         var requests = [
-            { id: "req1", name: 'service1', actions: ['register', 'WEBWAS', 'WASDB', 'DBWAS', 'WASWEB', 'ungister'], time: 1000, state: [], status: 'normal' },
-            { id: "req2", name: 'service2', actions: ['register', 'WEBWAS', 'WASDB', 'DBWAS', 'WASWEB', 'ungister'], time: 1000, state: [], status: 'warning' },
-            { id: "req3", name: 'service3', actions: ['register', 'WEBWAS', 'WASDB', 'DBWAS', 'WASWEB', 'ungister'], time: 9000, state: [], status: 'normal' },
-            { id: "req4", name: 'service4', actions: ['register', 'WEBWAS', 'WASDB', 'DBWAS', 'WASWEB', 'ungister'], time: 8400, state: [], status: 'error' },
-            { id: "req5", name: 'service5', actions: ['register', 'WEBWAS', 'WASDB', 'DBWAS', 'WASWEB', 'ungister'], time: 5000, state: [], status: 'normal' },
-            { id: "req6", name: 'service6', actions: ['register', 'WEBWAS', 'WASDB', 'DBWAS', 'WASWEB', 'ungister'], time: 2000, state: [], status: 'error' },
-            { id: "req7", name: 'service7', actions: ['register', 'WEBWAS', 'WASDB', 'DBWAS', 'WASWEB', 'ungister'], time: 4000, state: [], status: 'warning' },
-            { id: "req8", name: 'service8', actions: ['register', 'WEBWAS', 'WASDB', 'DBWAS', 'WASWEB', 'ungister'], time: 7000, state: [], status: 'error' },
-            { id: "req9", name: 'service9', actions: ['register', 'WEBWAS', 'WASDB', 'DBWAS', 'WASWEB', 'ungister'], time: 8000, state: [], status: 'warning' },
-            { id: "req10", name: 'service10', actions: ['register', 'WEBWAS', 'WASDB', 'DBWAS', 'WASWEB', 'ungister'], time: 4400, state: [], status: 'normal' },
-            { id: "req11", name: 'service11', actions: ['register', 'WEBWAS', 'WASDB', 'DBWAS', 'WASWEB', 'ungister'], time: 3200, state: [], status: 'warning' },
-            { id: "req12", name: 'service12', actions: ['register', 'WEBWAS', 'WASDB', 'DBWAS', 'WASWEB', 'ungister'], time: 7240, state: [], status: 'normal' },
-            { id: "req13", name: 'service13', actions: ['register', 'WEBWAS', 'WASDB', 'DBWAS', 'WASWEB', 'ungister'], time: 7240, state: [], status: 'normal' },
-            { id: "req14", name: 'service14', actions: ['register', 'WEBWAS', 'WASDB', 'DBWAS', 'WASWEB', 'ungister'], time: 3500, state: [], status: 'warning' },
-            { id: "req15", name: 'service15', actions: ['register', 'WEBWAS', 'WASDB', 'DBWAS', 'WASWEB', 'ungister'], time: 2400, state: [], status: 'error' },
+            { id: "req1", name: 'service1', actions: ['register', 'WEBWAS', 'WASDB', 'DBWAS', 'WASWEB', 'ungister'], time: 1000, state: [], status: "normal" },
+            { id: "req2", name: 'service2', actions: ['register', 'WEBWAS', 'WASDB', 'DBWAS', 'WASWEB', 'ungister'], time: 1000, state: [], status: "warning" },
+            { id: "req3", name: 'service3', actions: ['register', 'WEBWAS', 'WASDB', 'DBWAS', 'WASWEB', 'ungister'], time: 9000, state: [], status: "normal" },
+            { id: "req4", name: 'service4', actions: ['register', 'WEBWAS', 'WASDB', 'DBWAS', 'WASWEB', 'ungister'], time: 8400, state: [], status: "warning" },
+            { id: "req5", name: 'service5', actions: ['register', 'WEBWAS', 'WASDB', 'DBWAS', 'WASWEB', 'ungister'], time: 5000, state: [], status: "warning" },
+            { id: "req6", name: 'service6', actions: ['register', 'WEBWAS', 'WASDB', 'DBWAS', 'WASWEB', 'ungister'], time: 2000, state: [], status: "normal" },
+            { id: "req7", name: 'service7', actions: ['register', 'WEBWAS', 'WASDB', 'DBWAS', 'WASWEB', 'ungister'], time: 4000, state: [], status: "error" },
+            { id: "req8", name: 'service8', actions: ['register', 'WEBWAS', 'WASDB', 'DBWAS', 'WASWEB', 'ungister'], time: 7000, state: [], status: "normal" },
+            { id: "req9", name: 'service9', actions: ['register', 'WEBWAS', 'WASDB', 'DBWAS', 'WASWEB', 'ungister'], time: 8000, state: [], status: "warning" },
+            { id: "req10", name: 'service10', actions: ['register', 'WEBWAS', 'WASDB', 'DBWAS', 'WASWEB', 'ungister'], time: 4400, state: [], status: "normal" },
+            { id: "req11", name: 'service11', actions: ['register', 'WEBWAS', 'WASDB', 'DBWAS', 'WASWEB', 'ungister'], time: 3200, state: [], status: "normal" },
+            { id: "req12", name: 'service12', actions: ['register', 'WEBWAS', 'WASDB', 'DBWAS', 'WASWEB', 'ungister'], time: 3200, state: [], status: "normal" },
         ];
+
+        function getRandomStatus() {
+            var randomIndex = Math.floor(Math.random() * possibleStatuses.length);
+            return possibleStatuses[randomIndex];
+        }
 
         requests.sort((a, b) => a.time - b.time);
 
-        let width = 1800;
-        let height = 580;
+        let width = 1520;
+        let height = 380;
         let timerID;
         let stateIdCounter = 0;
         let errorTablesCount = 0;
-
+        var mostCommonStatus;
         for (var i = 0; i < requests.length; i++) {
             if (requests[i].status === 'error') {
                 errorTablesCount++;
             }
         }
+
+        var statusCounts = {};
+        requests.forEach(function (request) {
+            if (statusCounts[request.status]) {
+                statusCounts[request.status]++;
+            } else {
+                statusCounts[request.status] = 1;
+            }
+        });
+
+        mostCommonStatus = Object.keys(statusCounts).reduce(function (a, b) {
+            return statusCounts[a] > statusCounts[b] ? a : b;
+        });
 
         var svg = d3.select("#system")
             .attr("width", width)
@@ -92,6 +109,18 @@
 
         filter.append("feFlood")
             .attr("flood-color", "#7BD3EA")
+            .attr("flood-color", function (d) {
+                switch (mostCommonStatus) {
+                    case 'normal':
+                        return '#7BD3EA';
+                    case 'warning':
+                        return '#F6A302';
+                    case 'error':
+                        return '#D31249';
+                    default:
+                        return '#7BD3EA';
+                }
+            })
             .attr("result", "color");
 
         filter.append("feComposite")
@@ -115,23 +144,35 @@
             .attr("class", "server-column2")
 
             .attr("cx", function (d, i) {
-                return i * (width / servers.length) + ((width / servers.length)) / 2 + 50;
+                return i * (width / servers.length) + ((width / servers.length)) / 2;
             })
-            .attr("r", 220)
+            .attr("r", 160)
             .attr("width", 1000 / servers.length)
             .attr("height", 320)
             .transition()
             .duration(500)
-            .style("filter", "drop-shadow(0px 0px 15px #7BD3EA)")
-            .style("opacity", 0)
             .attr("cy", -100)
+            .style("opacity", 0)
             .transition()
             .duration(1200)
             .delay(function (d, i) {
                 return i * 1000;
             })
             .style("opacity", 1)
-            .attr("cy", 230)
+            .attr("cy", 162)
+            .attr("filter", function (d) {
+                switch (mostCommonStatus) {
+                    case 'normal':
+                        return "drop-shadow(0px 0px 15px #7BD3EA)";
+                    case 'warning':
+                        return "drop-shadow(0px 0px 15px #F6A302)";
+                    case 'error':
+                        return "drop-shadow(0px 0px 15px #D31249)";
+                    default:
+                        return "drop-shadow(0px 0px 15px #7BD3EA)";
+                }
+            });
+
 
 
         svg.selectAll(".server-column")
@@ -140,17 +181,16 @@
             .attr("class", "server-column")
 
             .attr("cx", function (d, i) {
-                return i * (width / servers.length) + ((width / servers.length)) / 2 + 50;
+                return i * (width / servers.length) + ((width / servers.length)) / 2;
             })
-            .attr("r", 220)
+            .attr("r", 160)
             .attr("width", 1000 / servers.length)
             .attr("height", 320)
-            .attr("stroke", "#7BD3EA")
             .attr("stroke-width", 2)
             .transition()
             .duration(500)
-            .style("opacity", 0)
             .attr("cy", -100)
+            .style("opacity", 0)
             .transition()
             .duration(1200)
             .delay(function (d, i) {
@@ -158,11 +198,25 @@
             })
             .style("filter", "url(#drop-shadow)")
             .style("opacity", 1)
-            .attr("cy", 230)
+            .attr("cy", 162)
+            .attr("stroke", function (d) {
+                switch (mostCommonStatus) {
+                    case 'normal':
+                        return '#7BD3EA';
+                    case 'warning':
+                        return '#F6A302';
+                    case 'error':
+                        return '#D31249';
+                    default:
+                        return '#7BD3EA';
+                }
+            })
+
+
 
 
         var totalAnimationTime = requests.reduce(function (sum, request) {
-            return Math.max(sum, request.time + 4000);
+            return Math.max(sum, request.time);
         }, 0);
 
         function checkAndUpdateStatus(request) {
@@ -177,13 +231,24 @@
             clearInterval(timerID);
         }
 
+        var warningIcons = [];
 
         setTimeout(function () {
-            if (errorTablesCount >= 4) {
-                var warningIcon = svg.selectAll(".warning")
+            for (var i = 0; i < requests.length; i++) {
+                if (requests[i].status === 'error') {
+                    createWarningIcon(i);
+                }
+            }
+        }, totalAnimationTime);
+
+        function createWarningIcon(index) {
+            var warningIcon = svg.select(".warning-" + index);
+
+            if (warningIcon.empty()) {
+                warningIcon = svg.selectAll(".warning-" + index)
                     .data(servers)
                     .enter().append("image")
-                    .attr("class", "warning")
+                    .attr("class", "warning-" + index)
                     .attr("xlink:href", function (d) {
                         return "./img/warning.png";
                     })
@@ -194,15 +259,101 @@
                     .attr("width", 150)
                     .attr("height", 150)
                     .attr("filter", "drop-shadow(2px 4px 6px red)")
-                    .style("opacity", 1);
-
-
-                timerID = setInterval(function () {
-                    warningIcon.transition().duration(500)
-                        .style("opacity", warningIcon.style("opacity") === "1" ? 0.5 : 1);
-                }, 500);
+                    .style("opacity", 0);
+                warningIcon.transition().duration(500).style("opacity", 1);
             }
-        }, totalAnimationTime);
+
+            warningIcons.push(warningIcon);
+
+            var iconIndex = 0;
+            setInterval(function () {
+                warningIcon.transition().duration(500)
+                    .style("opacity", function (d, i) {
+                        return i === iconIndex ? 1 : 0;
+                    });
+                iconIndex = (iconIndex + 1) % servers.length;
+            }, 500);
+        }
+
+        function updateServerImageStatus() {
+            var statusCounts = {};
+            requests.forEach(function (request) {
+                if (statusCounts[request.status]) {
+                    statusCounts[request.status]++;
+                } else {
+                    statusCounts[request.status] = 1;
+                }
+            });
+
+            mostCommonStatus = Object.keys(statusCounts).reduce(function (a, b) {
+                return statusCounts[a] > statusCounts[b] ? a : b;
+            });
+
+            svg.selectAll(".server-image")
+                .transition()
+                .duration(500)
+                .attr("filter", function (d) {
+                    switch (mostCommonStatus) {
+                        case 'normal':
+                            return "hue-rotate(0deg)";
+                        case 'warning':
+                            return "hue-rotate(220deg)";
+                        case 'error':
+                            return "hue-rotate(160deg)";
+                        default:
+                            return "hue-rotate(0deg)";
+                    }
+                });
+
+            svg.selectAll(".server-column")
+                .transition()
+                .duration(500)
+                .attr("stroke", function (d) {
+                    switch (mostCommonStatus) {
+                        case 'normal':
+                            return '#7BD3EA';
+                        case 'warning':
+                            return '#F6A302';
+                        case 'error':
+                            return '#D31249';
+                        default:
+                            return '#7BD3EA';
+                    }
+                })
+
+            svg.selectAll(".server-column2")
+                .transition()
+                .duration(500)
+                .attr("filter", function (d) {
+                    switch (mostCommonStatus) {
+                        case 'normal':
+                            return "drop-shadow(0px 0px 15px #7BD3EA)";
+                        case 'warning':
+                            return "drop-shadow(0px 0px 15px #F6A302)";
+                        case 'error':
+                            return "drop-shadow(0px 0px 15px #D31249)";
+                        default:
+                            return "drop-shadow(0px 0px 15px #7BD3EA)";
+                    }
+                });
+
+            const filter = svg.select("#drop-shadow");
+            const filterTransition = filter.transition().duration(500);
+
+            filterTransition.select("feFlood")
+                .attr("flood-color", function (d) {
+                    switch (mostCommonStatus) {
+                        case 'normal':
+                            return '#7BD3EA';
+                        case 'warning':
+                            return '#F6A302';
+                        case 'error':
+                            return '#D31249';
+                        default:
+                            return '#7BD3EA';
+                    }
+                });
+        }
 
 
         svg.selectAll(".server-image")
@@ -213,19 +364,30 @@
                 return "./img/attr.png";
             })
             .attr("x", function (d, i) {
-                return i * (width / servers.length) + ((width / servers.length)) / 2 - 210;
+                return i * (width / servers.length) + ((width / servers.length)) / 2 - 200;
             })
-            .attr("y", 100)
-            .attr("width", 500)
-            .attr("height", 500)
-
+            .attr("y", 110)
+            .attr("width", 400)
+            .attr("height", 300)
+            .attr("filter", function (d) {
+                switch (mostCommonStatus) {
+                    case 'normal':
+                        return "hue-rotate(0deg)";
+                    case 'warning':
+                        return "hue-rotate(220deg)";
+                    case 'error':
+                        return "hue-rotate(160deg)";
+                    default:
+                        return "hue-rotate(0deg)";
+                }
+            });
 
         svg.selectAll(".text-server")
             .data(servers)
             .enter().append("text")
             .attr('class', 'textserver')
             .attr("x", function (d, i) {
-                return i * (width / servers.length) + ((width / servers.length)) / 2 + 28;
+                return i * (width / servers.length) + ((width / servers.length)) / 2;
             })
             .attr("y", 40)
             .style("font-size", "20px")
@@ -241,7 +403,11 @@
             })
             .style("filter", "url(#drop-shadow)")
             .style("opacity", 1)
+            .style("text-anchor", "middle")
             .text(d => d);
+
+
+
 
 
         // ===============================================
@@ -328,10 +494,10 @@
                 .attr("class", "explosion " + explosionClass)
                 .attr("src", "./img/explotion.gif")
                 .style("position", "absolute")
-                .style("width", "80px")
+                .style("width", "50px")
                 .style("filter", getFilter(status))
                 .style("left", (left + width / 2 - 40) + "px")
-                .style("top", (top + height / 2 - 60) + "px")
+                .style("top", (top + height / 2 - 50) + "px")
                 .style("display", "block");
             explosionImage.transition()
                 .duration(500)
@@ -364,8 +530,8 @@
                 .attr("transform", function () {
                     var row = Math.floor(index / 3);
                     var col = index % 3;
-                    var translateX = col * 95;
-                    var translateY = row * 60;
+                    var translateX = col * 80;
+                    var translateY = row * 40;
                     return "translate(" + translateX + "," + translateY + ")";
                 });
 
@@ -373,7 +539,7 @@
             requestText.transition()
                 .duration(2000)
                 .delay(request.time)
-                .attr("x", targetCircle - 50)
+                .attr("x", targetCircle - 100)
                 .transition()
                 .duration(0)
                 .style("opacity", 1);
@@ -382,12 +548,13 @@
                 .duration(2000)
                 .delay(request.time)
                 .attr("xlink:href", imageUrl)
-                .attr("x", targetCircle - 30)
+                .attr("x", targetCircle - 100)
                 .attr("y", 80)
                 .transition()
                 .duration(0)
                 .style("opacity", 1)
                 .on("end", function () {
+
                     if (currentIndex < nextIndex) {
                         stateIdCounter++;
                         var stateId = "state_" + stateIdCounter;
@@ -396,10 +563,10 @@
                         groupElement.append("rect")
                             .attr("id", stateId)
                             .attr("class", "tableRect")
-                            .attr("x", targetRect - 80)
+                            .attr("x", targetRect - 115)
                             .attr("y", 80)
-                            .attr("width", 80)
-                            .attr("height", 50)
+                            .attr("width", 70)
+                            .attr("height", 30)
                             .transition()
                             .duration(1000)
                             .style("fill", getColor(request.status))
@@ -425,11 +592,11 @@
                         groupElement.append('text')
                             .attr('id', stateId)
                             .attr('class', 'tableName')
-                            .attr("x", targetRect - 40)
-                            .attr("y", 110)
+                            .attr("x", targetRect - 80)
+                            .attr("y", 100)
                             .transition()
                             .duration(1000)
-                            .style("font-size", "20px")
+                            .style("font-size", "15px")
                             .text(request.name);
                     }
 
@@ -494,6 +661,8 @@
                         requestImage.transition()
                             .duration(0)
                             .style("opacity", 0);
+                        request.status = getRandomStatus();
+                        updateServerImageStatus();
 
                         setTimeout(function () {
                             moveRequest(requests[index], index, 0);
@@ -511,7 +680,7 @@
                     var row = Math.floor(index / 3);
                     var col = index % 3;
                     var translateX = col * 80;
-                    var translateY = row * 60;
+                    var translateY = row * 50;
                     return "translate(" + translateX + "," + translateY + ")";
                 });
 
@@ -521,8 +690,8 @@
                 .attr("xlink:href", "./img/rocket.png")
                 .attr("x", -50)
                 .attr("y", 70)
-                .attr("width", 50)
-                .attr("height", 50)
+                .attr("width", 25)
+                .attr("height", 25)
                 .style("opacity", 0)
                 .style("filter", "drop-shadow(2px 4px 15px #F9F54B)")
 
@@ -533,7 +702,7 @@
                 .attr('x', 0)
                 .attr('y', 75)
                 .attr('fill', 'white')
-                .style("font-size", "18px")
+                .style("font-size", "12px")
                 .attr('text-anchor', 'start')
                 .style("opacity", 0)
                 .text(request.name);
