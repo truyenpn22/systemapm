@@ -45,48 +45,42 @@
     <script>
         var servers = ["WEB"];
         var data = [
-            { id: "req1", name: '파주시청1', actions: ['register', 'WEB', 'ungister'], time: 100, state: [] },
-            { id: "req2", name: '파주시청2', actions: ['register', 'WEB', 'ungister'], time: 200, state: [] },
-            { id: "req3", name: '파주시청3', actions: ['register', 'WEB', 'ungister'], time: 300, state: [] },
-            { id: "req4", name: '파주시청4', actions: ['register', 'WEB', 'ungister'], time: 400, state: [] },
-            { id: "req5", name: '파주시청5', actions: ['register', 'WEB', 'ungister'], time: 500, state: [] },
-            { id: "req6", name: '파주시청6', actions: ['register', 'WEB', 'ungister'], time: 600, state: [] },
-            { id: "req7", name: '파주시청7', actions: ['register', 'WEB', 'ungister'], time: 700, state: [] },
-            { id: "req8", name: '파주시청8', actions: ['register', 'WEB', 'ungister'], time: 800, state: [] },
-            { id: "req9", name: '파주시청9', actions: ['register', 'WEB', 'ungister'], time: 900, state: [] },
-            { id: "req10", name: '파주시청10', actions: ['register', 'WEB', 'ungister'], time: 1000, state: [] },
-            { id: "req11", name: '파주시청11', actions: ['register', 'WEB', 'ungister'], time: 1200, state: [] },
-            { id: "req12", name: '파주시청12', actions: ['register', 'WEB', 'ungister'], time: 1300, state: [] },
-            { id: "req13", name: '파주시청12', actions: ['register', 'WEB', 'ungister'], time: 1400, state: [] },
-            { id: "req14", name: '파주시청12', actions: ['register', 'WEB', 'ungister'], time: 1500, state: [] },
-            { id: "req15", name: '파주시청12', actions: ['register', 'WEB', 'ungister'], time: 1600, state: [] },
-            { id: "req16", name: '파주시청12', actions: ['register', 'WEB', 'ungister'], time: 1700, state: [] },
-            { id: "req17", name: '파주시청12', actions: ['register', 'WEB', 'ungister'], time: 1800, state: [] },
-            { id: "req18", name: '파주시청12', actions: ['register', 'WEB', 'ungister'], time: 1900, state: [] },
-            { id: "req19", name: '파주시청12', actions: ['register', 'WEB', 'ungister'], time: 2000, state: [] },
-            { id: "req20", name: '파주시청12', actions: ['register', 'WEB', 'ungister'], time: 2100, state: [] },
+            { id: "req1", name: '파주시청1', actions: ['register', 'WEBS', 'ungister'], time: 200 },
+            { id: "req2", name: '파주시청2', actions: ['register', 'WEB', 'ungister'], time: 900 },
+            { id: "req3", name: '파주시청3', actions: ['register', 'WEB', 'ungister'], time: 500 },
+            { id: "req4", name: '파주시청4', actions: ['register', 'WEB', 'ungister'], time: 800 },
+            { id: "req5", name: '파주시청5', actions: ['register', 'WEB', 'ungister'], time: 300 },
+            { id: "req6", name: '파주시청6', actions: ['register', 'WEB', 'ungister'], time: 700 },
+            { id: "req7", name: '파주시청7', actions: ['register', 'WEB', 'ungister'], time: 100 },
+            { id: "req8", name: '파주시청8', actions: ['register', 'WEB', 'ungister'], time: 200 },
+            { id: "req9", name: '파주시청9', actions: ['register', 'WEB', 'ungister'], time: 600 },
+            { id: "req10", name: '파주시청10', actions: ['register', 'WEB', 'ungister'], time: 1800 },
+            { id: "req11", name: '파주시청11', actions: ['register', 'WEB', 'ungister'], time: 1200 },
+            { id: "req12", name: '파주시청12', actions: ['register', 'WEB', 'ungister'], time: 1700 },
+            { id: "req13", name: '파주시청13', actions: ['register', 'WEB', 'ungister'], time: 2000 },
+            { id: "req14", name: '파주시청14', actions: ['register', 'WEB', 'ungister'], time: 1400 },
+            { id: "req15", name: '파주시청15', actions: ['register', 'WEB', 'ungister'], time: 1600 },
+            { id: "req16", name: '파주시청16', actions: ['register', 'WEB', 'ungister'], time: 2100 },
+            { id: "req17", name: '파주시청17', actions: ['register', 'WEB', 'ungister'], time: 1000 },
+            { id: "req18", name: '파주시청18', actions: ['register', 'WEB', 'ungister'], time: 1300 },
+            { id: "req19", name: '파주시청19', actions: ['register', 'WEB', 'ungister'], time: 1500 },
+            { id: "req20", name: '파주시청20', actions: ['register', 'WEB', 'ungister'], time: 1900 },
         ];
 
-        function generateUUID() {
-            var d = new Date().getTime();
-            if (typeof performance !== 'undefined' && typeof performance.now === 'function') {
-                d += performance.now();
-            }
+        function getUUID() {
             return 'xxxxxxxx-xxxx-4xxx-yxxx-xxxxxxxxxxxx'.replace(/[xy]/g, function (c) {
-                var r = (d + Math.random() * 16) % 16 | 0;
-                d = Math.floor(d / 16);
-                return (c === 'x' ? r : (r & 0x3 | 0x8)).toString(16);
+                var r = Math.random() * 16 | 0, v = c == 'x' ? r : (r & 0x3 | 0x8);
+                return v.toString(16);
             });
         }
 
         data.forEach(function (request) {
-            request.uuid = generateUUID();
+            request.uuid = getUUID();
         });
 
 
         let width = 1520;
         let height = 380;
-        let stateIdCounter = 0;
 
         var svg = d3.select("#system")
             .attr("width", width)
@@ -114,27 +108,22 @@
             switch (action) {
                 case "register":
                     return 'WEB';
+                case "WEB":
+                    return 'ungister';
                 case "ungister":
-                    if (currentServer === "WEB") {
-                        return "ungister";
-                    }
-                    return "WEB";
+                    return null;
+
                 default:
                     return null;
             }
         }
 
-
         function getImageUrl(currentServer, nextServer) {
-            if (currentServer === "DB" && nextServer === "WAS") {
-                return "./img/rocket11.png";
-            } else if (currentServer === "WAS" && nextServer === "WEB") {
-                return "./img/rocket11.png";
-            } else if (currentServer === "WEB" && nextServer === "ungister") {
-                return "./img/rocket11.png";
+            if (nextServer === "ungister") {
+                return "./img/img_spaceship_gl.png";
             }
             else {
-                return "./img/rocket.png";
+                return "./img/img_spaceship_br.png";
             }
         }
 
@@ -185,154 +174,227 @@
                 });
 
             requestImage.transition()
-                .duration(0)
+                .duration(2000)
                 .delay(request.time)
-                .attr("xlink:href", "./img/img_spaceship_br.png")
-                .attr("x", targetCircle - 100)
-                .attr("y", 80)
+                .attr("xlink:href", imageUrl)
+                .attr("x", targetRect - 100)
+                .attr("y", 40)
                 .on("end", function () {
-                    if (currentIndex < nextIndex) {
-                        stateIdCounter++;
-                        var stateId = "state_" + stateIdCounter;
-                        request.state.push(stateId);
-                        groupElement.append("rect")
-                            .attr("id", stateId)
-                            .attr("class", "tableRect")
-                            .attr("x", targetRect - 160)
-                            .attr("y", 65)
-                            .attr("width", 145)
-                            .attr("height", 45)
-                            .style("fill", "#3652AD")
-                            .style("stroke", "white")
-                            .style("stroke-width", 1)
-                            .style("filter", "drop-shadow(2px 2px 8px rgb(33, 33, 34)")
-
-                        groupElement.append("path")
-                            .attr("d", `M ${targetRect - 130},59 h100 v6 h-115 q0,4 4,4 h107 q4,0 4,-4 v-6 Z`)
-                            .attr("fill", "#41c2b1");
-
-                        groupElement.append("text")
-                            .attr("x", targetRect - 120)
-                            .attr("y", 95)
-                            .attr("text-anchor", "middle")
-                            .attr("fill", "white")
-                            .attr("font-size", "14px")
-                            .attr("font-weight", 500)
-                            .style("text-shadow", "0px 4px 5px black")
-                            .text(request.name)
+                    groupElement.append("rect")
+                        .attr("class", "tableRect")
+                        .attr("x", targetRect - 160)
+                        .attr("y", 65)
+                        .attr("width", 145)
+                        .attr("height", 45)
+                        .style("fill", "#3652AD")
+                        .style("stroke", "white")
+                        .style("filter", "drop-shadow(2px 2px 8px rgb(33, 33, 34)")
+                        .style("stroke-width", 1)
 
 
-                        const corners = [
-                            { cx: targetRect - 155, cy: 70 },
-                            { cx: targetRect - 155 + 135, cy: 70 },
-                            { cx: targetRect - 155, cy: 70 + 35 },
-                            { cx: targetRect - 155 + 135, cy: 70 + 35 }
-                        ];
+                    groupElement.append("rect")
+                        .attr("x", targetRect - 160)
+                        .attr("y", 65)
+                        .attr("width", 145)
+                        .attr("height", 45)
+                        .style("fill", "transparent")
+                        .style("stroke", "white")
+                        .style("filter", "drop-shadow(2px 2px 8px rgb(33, 33, 34)")
+                        .style("stroke-width", 2)
+                        .style("rx", 5)
+                        .style("ry", 5)
+                        .attr("filter", "blur(1.5px)")
+                        .style("opacity", 1)
+                        .transition()
+                        .delay(500)
+                        .duration(500)
+                        .attr("filter", "blur(0.1px)")
+                        .style("opacity", 0);
 
-                        corners.forEach(corner => {
-                            groupElement.append("circle")
-                                .attr("cx", corner.cx)
-                                .attr("cy", corner.cy)
-                                .attr("r", 0.5)
-                                .attr("fill", "white")
-                        });
-
-                        // ==========================
-
-                        tableElement.append("rect")
-                            .attr("id", stateId)
-                            .attr("class", "tableRect")
-                            .attr("x", targetRect - 70)
-                            .attr("y", 76)
-                            .attr("width", 38)
-                            .attr("height", 25)
-                            .style("fill", "#0C2D57")
-                            .style("stroke", "white")
-                            .style("stroke-width", 2)
-                            .style("filter", "drop-shadow(2px 2px 8px rgb(33, 33, 34)")
-
-                        tableElement.append("text")
-                            .attr("x", targetRect - 70 + 19)
-                            .attr("y", 76 + 18)
-                            .attr("text-anchor", "middle")
-                            .attr("fill", "white")
-                            .attr("font-weight", 500)
-                            .text("20");
+                    groupElement.append("path")
+                        .attr("d", `M ${targetRect - 130},59 h100 v6 h-115 q0,4 4,4 h107 q4,0 4,-4 v-6 Z`)
+                        .attr("fill", "#EAEAEA")
+                        .attr("filter", "blur(1.5px)")
+                        .transition()
+                        .delay(500)
+                        .duration(500)
+                        .attr("filter", "blur(0.1px)")
+                        .attr("fill", "#41c2b1")
 
 
-                        const light = [
-                            { cx: targetRect - 68, cy: 77 },
-                            { cx: targetRect - 33, cy: 70 + 30 }
-                        ];
+                    groupElement.append("text")
+                        .attr("x", targetRect - 120)
+                        .attr("y", 95)
+                        .attr("text-anchor", "middle")
+                        .attr("fill", "#EAEAEA")
+                        .attr("font-size", "14px")
+                        .attr("font-weight", 500)
+                        .style("text-shadow", "0px 4px 5px black")
+                        .style("opacity", 0)
+                        .transition()
+                        .delay(500)
+                        .duration(500)
+                        .style("opacity", 1)
+                        .text(request.name)
 
-                        light.forEach(corner => {
-                            var lightGroup = tableElement.append("g");
-                            lightGroup.append("circle")
-                                .attr("cx", corner.cx)
-                                .attr("cy", corner.cy)
-                                .attr("r", 3)
-                                .attr("fill", "white")
 
-                            lightGroup.append("path")
-                                .attr("d", `M ${corner.cx} ${corner.cy} L ${corner.cx - 5} ${corner.cy - 5}`)
-                                .attr("stroke", "white")
-                                .attr("stroke-width", 0.5);
-                            lightGroup.append("path")
-                                .attr("d", `M ${corner.cx} ${corner.cy} L ${corner.cx - 5} ${corner.cy + 5}`)
-                                .attr("stroke", "white")
-                                .attr("stroke-width", 0.5);
+                    const corners = [
+                        { cx: targetRect - 155, cy: 70 },
+                        { cx: targetRect - 155 + 135, cy: 70 },
+                        { cx: targetRect - 155, cy: 70 + 35 },
+                        { cx: targetRect - 155 + 135, cy: 70 + 35 }
+                    ];
 
-                            lightGroup.append("path")
-                                .attr("d", `M ${corner.cx} ${corner.cy} L ${corner.cx + 5} ${corner.cy - 5}`)
-                                .attr("stroke", "white")
-                                .attr("stroke-width", 0.5);
-                            lightGroup.append("path")
-                                .attr("d", `M ${corner.cx} ${corner.cy} L ${corner.cx + 5} ${corner.cy + 5}`)
-                                .attr("stroke", "white")
-                                .attr("stroke-width", 0.5);
-                        });
+                    corners.forEach(corner => {
+                        groupElement.append("circle")
+                            .attr("cx", corner.cx)
+                            .attr("cy", corner.cy)
+                            .attr("r", 0.6)
+                            .style("opacity", 0)
+                            .transition()
+                            .delay(500)
+                            .duration(500)
+                            .style("opacity", 1)
+                            .attr("fill", "#EAEAEA")
+                    });
 
-                    }
+                    // ==========================
 
-                    request.current = nextServer;
+                    tableElement.append("rect")
+                        .attr("class", "tableRect")
+                        .attr("x", targetRect - 70)
+                        .attr("y", 76)
+                        .attr("width", 38)
+                        .attr("height", 25)
+                        .style("fill", "transparent")
+                        .style("stroke", "#EAEAEA")
+                        .style("stroke-width", 2)
+                        .transition()
+                        .delay(1000)
+                        .duration(1000)
+                        .style("stroke-width", 1)
+                        .style("fill", "#0C2D57")
+
+
+                    tableElement.append("text")
+                        .attr("x", targetRect - 70 + 19)
+                        .attr("y", 76 + 18)
+                        .attr("text-anchor", "middle")
+                        .attr("fill", "#EAEAEA")
+                        .attr("font-weight", 500)
+                        .style("opacity", 0)
+                        .transition()
+                        .delay(1000)
+                        .duration(1000)
+                        .style("opacity", 1)
+                        .text("20")
+
+                    const light = [
+                        { cx: targetRect - 68, cy: 77 },
+                        { cx: targetRect - 33, cy: 70 + 30 }
+                    ];
+
+                    light.forEach(corner => {
+                        var lightGroup = tableElement.append("g");
+                        lightGroup.append("circle")
+                            .attr("cx", corner.cx)
+                            .attr("cy", corner.cy)
+                            .attr("r", 3)
+                            .attr("fill", "#EAEAEA")
+                            .style("filter", "blur(0.8px)")
+                            .style("opacity", 1)
+                            .transition()
+                            .delay(1000)
+                            .duration(1000)
+                            .style("opacity", 0);
+
+                        lightGroup.append("path")
+                            .attr("d", `M ${corner.cx} ${corner.cy} L ${corner.cx - 5} ${corner.cy - 5}`)
+                            .attr("stroke", "#EAEAEA")
+                            .attr("stroke-width", 0.5)
+                            .style("filter", "blur(0.4px)")
+                            .style("opacity", 1)
+                            .transition()
+                            .delay(1000)
+                            .duration(1000)
+                            .style("opacity", 0);
+
+                        lightGroup.append("path")
+                            .attr("d", `M ${corner.cx} ${corner.cy} L ${corner.cx - 5} ${corner.cy + 5}`)
+                            .attr("stroke", "#EAEAEA")
+                            .attr("stroke-width", 0.5)
+                            .style("filter", "blur(0.4px)")
+                            .style("opacity", 1)
+                            .transition()
+                            .delay(1000)
+                            .duration(1000)
+                            .style("opacity", 0);
+                        lightGroup.append("path")
+                            .attr("d", `M ${corner.cx} ${corner.cy} L ${corner.cx + 5} ${corner.cy - 5}`)
+                            .attr("stroke", "#EAEAEA")
+                            .attr("stroke-width", 0.5)
+                            .style("filter", "blur(0.4px)")
+                            .style("opacity", 1)
+                            .transition()
+                            .delay(1000)
+                            .duration(1000)
+                            .style("opacity", 0);
+                        lightGroup.append("path")
+                            .attr("d", `M ${corner.cx} ${corner.cy} L ${corner.cx + 5} ${corner.cy + 5}`)
+                            .attr("stroke", "#EAEAEA")
+                            .attr("stroke-width", 0.5)
+                            .style("filter", "blur(0.4px)")
+                            .style("opacity", 1)
+                            .transition()
+                            .delay(1000)
+                            .duration(1000)
+                            .style("opacity", 0);
+                    });
+                    // if (actionIndex < request.actions.length - 1) {
+                    //     moveRequest(request, index, actionIndex + 1);
+                    // }
                 });
 
+            // if (action === "ungister") {
+            //     d3.select("#rectTable").remove();
+            //     d3.select("#rectTable2").remove();
+
+            // }
         }
 
         var circleGroupElement = svg.insert('g', ':first-child').attr("id", "circleGroup");
 
         data.forEach(function (request, index) {
             var circlegroupElement = circleGroupElement.append('g')
-                .attr("id", "circleTable")
+                .attr("id", "plane")
                 .attr("transform", function () {
-                    var row = Math.floor(index / 5);
-                    var col = index % 5;
+                    var row = Math.floor(index / 1);
+                    var col = index % 1;
                     var translateX = col * 80;
-                    var translateY = row * 75;
+                    var translateY = row * 15;
                     return "translate(" + translateX + "," + translateY + ")";
                 });
-
 
             circlegroupElement.append("image")
                 .attr("id", request.id)
                 .attr("xlink:href", "./img/img_spaceship_br.png")
                 .attr("x", -50)
-                .attr("y", 70)
+                .attr("y", 50)
                 .attr("width", 25)
                 .attr("height", 25)
-                .style("opacity", 0)
+                .style("opacity", 1)
                 .style("filter", "drop-shadow(2px 4px 15px #F9F54B)")
 
-            circlegroupElement.append('text')
-                .attr('id', 'text_' + request.id)
-                .attr('class', 'circleText')
-                .attr('x', 0)
-                .attr('y', 75)
-                .attr('fill', 'white')
-                .style("font-size", "12px")
-                .attr('text-anchor', 'start')
-                .style("opacity", 0)
-                .text(request.name);
+            // circlegroupElement.append('text')
+            //     .attr('id', 'text_' + request.id)
+            //     .attr('class', 'circleText')
+            //     .attr('x', 0)
+            //     .attr('y', 75)
+            //     .attr('fill', 'white')
+            //     .style("font-size", "12px")
+            //     .attr('text-anchor', 'start')
+            //     .style("opacity", 0)
+            //     .text(request.name);
             moveRequest(request, index, 0);
         });
     </script>
