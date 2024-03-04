@@ -2,6 +2,9 @@
 <html>
 
 <head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>System APM</title>
     <script src="https://d3js.org/d3.v7.min.js"></script>
     <link href="https://fonts.googleapis.com/css2?family=Noto+Sans+KR:wght@100;300;400;500;700;900&display=swap"
         rel="stylesheet">
@@ -19,6 +22,14 @@
             background-position: center;
             margin: 10px;
         }
+
+        .danger {
+            background-color: red;
+        }
+
+        .warning {
+            background-color: yellow;
+        }
     </style>
 </head>
 
@@ -26,32 +37,38 @@
 
     <svg id="system"></svg>
     <script>
-        var servers = ["WEB"];
-
-        var requests = [
-            { id: "req1", name: '파주시청1', actions: ['register', 'WEB', 'unregister'], timeline: 4200, status: "normal" },
-            { id: "req2", name: '파주시청2', actions: ['register', 'WEB', 'unregister'], timeline: 3000, status: "warning" },
-            { id: "req3", name: '파주시청3', actions: ['register', 'WEB', 'unregister'], timeline: 1500, status: "normal" },
-            { id: "req4", name: '파주시청4', actions: ['register', 'WEB', 'unregister'], timeline: 5200, status: "normal" },
-            { id: "req5", name: '파주시청5', actions: ['register', 'WEB', 'unregister'], timeline: 2300, status: "error" },
-            { id: "req6", name: '파주시청6', actions: ['register', 'WEB', 'unregister'], timeline: 2700, status: "warning" },
-            { id: "req7", name: '파주시청7', actions: ['register', 'WEB', 'unregister'], timeline: 1500, status: "normal" },
-            { id: "req8", name: '파주시청8', actions: ['register', 'WEB', 'unregister'], timeline: 2500, status: "normal" },
-            { id: "req9", name: '파주시청9', actions: ['register', 'WEB', 'unregister'], timeline: 6000, status: "warning" },
-            { id: "req10", name: '파주시청10', actions: ['register', 'WEB', 'unregister'], timeline: 1800, status: "error" },
-            { id: "req11", name: '파주시청11', actions: ['register', 'WEB', 'unregister'], timeline: 2000, status: "warning" },
-            { id: "req12", name: '파주시청12', actions: ['register', 'WEB', 'unregister'], timeline: 1100, status: "normal" },
-            { id: "req13", name: '파주시청13', actions: ['register', 'WEB', 'unregister'], timeline: 2400, status: "error" },
-            { id: "req14", name: '파주시청14', actions: ['register', 'WEB', 'unregister'], timeline: 4000, status: "normal" },
-            { id: "req15", name: '파주시청15', actions: ['register', 'WEB', 'unregister'], timeline: 1600, status: "normal" },
-            { id: "req16", name: '파주시청16', actions: ['register', 'WEB', 'unregister'], timeline: 2100, status: "warning" },
-            { id: "req17", name: '파주시청17', actions: ['register', 'WEB', 'unregister'], timeline: 1000, status: "warning" },
-            { id: "req18", name: '파주시청18', actions: ['register', 'WEB', 'unregister'], timeline: 1300, status: "error" },
-            { id: "req19", name: '파주시청19', actions: ['register', 'WEB', 'unregister'], timeline: 5000, status: "normal" },
-            { id: "req20", name: '파주시청20', actions: ['register', 'WEB', 'unregister'], timeline: 1900, status: "error" },
+        let servers = ["WEB"];
+        var data = [
+            { id: "req1", name: '파주시청1', actions: ['register', 'WEB', 'unregister'] },
+            { id: "req2", name: '파주시청2', actions: ['register', 'WEB', 'unregister'] },
+            { id: "req3", name: '파주시청3', actions: ['register', 'WEB', 'unregister'] },
+            { id: "req4", name: '파주시청4', actions: ['register', 'WEB', 'unregister'] },
+            { id: "req5", name: '파주시청5', actions: ['register', 'WEB', 'unregister'] },
+            { id: "req6", name: '파주시청6', actions: ['register', 'WEB', 'unregister'] },
+            { id: "req7", name: '파주시청7', actions: ['register', 'WEB', 'unregister'] },
+            { id: "req8", name: '파주시청8', actions: ['register', 'WEB', 'unregister'] },
+            { id: "req9", name: '파주시청9', actions: ['register', 'WEB', 'unregister'] },
+            { id: "req10", name: '파주시청10', actions: ['register', 'WEB', 'unregister'] },
+            { id: "req11", name: '파주시청11', actions: ['register', 'WEB', 'unregister'] },
+            { id: "req12", name: '파주시청12', actions: ['register', 'WEB', 'unregister'] },
+            { id: "req13", name: '파주시청13', actions: ['register', 'WEB', 'unregister'] },
+            { id: "req14", name: '파주시청14', actions: ['register', 'WEB', 'unregister'] },
+            { id: "req15", name: '파주시청15', actions: ['register', 'WEB', 'unregister'] },
+            { id: "req16", name: '파주시청16', actions: ['register', 'WEB', 'unregister'] },
+            { id: "req17", name: '파주시청17', actions: ['register', 'WEB', 'unregister'] },
+            { id: "req18", name: '파주시청18', actions: ['register', 'WEB', 'unregister'] },
+            { id: "req19", name: '파주시청19', actions: ['register', 'WEB', 'unregister'] },
+            { id: "req20", name: '파주시청20', actions: ['register', 'WEB', 'unregister'] },
         ];
+        let width = 1520;
+        let height = 380;
+        let timerID;
+        let idCounts = {};
 
-
+        var svg = d3.select("#system")
+            .attr("width", width)
+            .attr("height", height)
+            .append("g");
         function getUUID() {
             return 'xxxxxxxx-xxxx-4xxx-yxxx-xxxxxxxxxxxx'.replace(/[xy]/g, function (c) {
                 var r = Math.random() * 16 | 0, v = c == 'x' ? r : (r & 0x3 | 0x8);
@@ -59,17 +76,28 @@
             });
         }
 
-        requests.forEach(function (request) {
+
+        data.forEach(function (request) {
             request.uuid = getUUID();
+            if (request.timeline >= 10000) {
+                request.status = 'danger';
+            } else if (request.timeline >= 5000) {
+                request.status = 'warning';
+            } else {
+                request.status = 'normal';
+            }
+
+            // ================
+
+            if (idCounts[request.name]) {
+                idCounts[request.name]++;
+            } else {
+                idCounts[request.name] = 1;
+            }
         });
 
-        let width = 1520;
-        let height = 380;
 
-        var svg = d3.select("#system")
-            .attr("width", width)
-            .attr("height", height)
-            .append("g");
+
 
         var outerGroupElement = svg.append('g').attr("id", "outerGroup");
         outerGroupElement
@@ -80,9 +108,7 @@
             })
             .each(function (d, i) {
 
-                d3.select(this).append("image")
-                    .attr("class", "server-image")
-                    .attr("xlink:href", "./img/WAS55.png")
+                d3.select(this).append("image").attr("class", "server-image").attr("xlink:href", "./img/WAS55.png")
 
                 d3.select(this).append("circle")
                     .attr("class", "server-circle")
@@ -119,7 +145,73 @@
                     .text("WEB")
             });
 
-        // ===============================================
+
+
+
+        var progressBox = outerGroupElement.append("g").attr("class", "progress-box")
+
+        function createEqualizer() {
+            const _w = 29;
+            const colorScale = d3.scaleLinear()
+                .domain([0, 50, 100])
+                .range(["#ff0000", "#ffff00", "#13e913"]);
+
+            const equalizerGroup1 = progressBox.append("g")
+                .attr("transform", "translate(500, 35)");
+
+            const equalizerGroup2 = progressBox.append("g")
+                .attr("transform", "translate(500, 338)");
+
+            for (let index = 0; index < 100 / 3; index++) {
+                const gradient = Math.round(((index + 1) * 100) / 100) * 3;
+                const gradientColor = colorScale(gradient);
+                const x = index * (_w + 1);
+
+                equalizerGroup1.append("rect")
+                    .attr("class", "bar")
+                    .attr("x", x)
+                    .attr("y", 0)
+                    .attr("width", _w)
+                    .attr("height", 5)
+                    .attr("fill", gradientColor)
+                    .attr("rx", 2)
+                    .attr("ry", 2)
+                    .attr("opacity", index < 6 ? index * 0 : 0.7)
+                    .transition()
+                    .duration(1000)
+                    .attr("opacity", index < 12 ? index * 0 : 0.7)
+                    .transition()
+                    .duration(1000)
+                    .attr("opacity", 1);
+
+                equalizerGroup2.append("rect")
+                    .attr("class", "bar")
+                    .attr("x", x)
+                    .attr("y", 0)
+                    .attr("width", _w)
+                    .attr("height", 5)
+                    .attr("fill", gradientColor)
+                    .attr("rx", 2)
+                    .attr("ry", 2)
+                    .attr("opacity", index < 10 ? index * 0 : 0.7)
+                    .transition()
+                    .duration(1000)
+                    .attr("opacity", index < 4 ? index * 0 : 0.7)
+                    .transition()
+                    .duration(1000)
+                    .attr("opacity", 1);
+            }
+        }
+
+        if (timerID) {
+            clearInterval(timerID)
+        }
+        timerID = setInterval(function () {
+            d3.selectAll(".bar").remove();
+            createEqualizer();
+        }, 2000);
+
+        // ======================================================================================
 
         function performAction(action) {
             switch (action) {
@@ -134,21 +226,77 @@
             }
         }
 
+        // ======================================================================================
+
+        function getColor(status) {
+            switch (status) {
+                case 'normal':
+                    return '#3652AD';
+                case 'warning':
+                    return '#FFBB00';
+                case 'danger':
+                    return '#B31312';
+                default:
+                    return '#3652AD';
+            }
+        }
+        function requestTtimeline(request) {
+            if (request.timeline >= 9000) {
+                request.status = "danger";
+            } else if (request.timeline >= 5000) {
+                request.status = "warning";
+            } else {
+                request.status = "normal";
+            }
+        }
 
 
+        function transitionSpaceship(attributes, transitionParams, opacity = 1) {
+            attributes.style("opacity", 0)
+                .transition()
+                .duration(500)
+                .delay(transitionParams.timeline)
+                .style("opacity", opacity);
+        }
 
 
-        // ===============================================
+        // ======================================================================================
+
+        var planGroupElement = svg.insert('g', ':first-child').attr("id", "planGroup");
+        var defs = planGroupElement.append("defs");
+        var blackHoleGradient = defs.append("radialGradient")
+            .attr("id", "blackHoleGradient")
+            .attr("cx", "50%")
+            .attr("cy", "50%")
+            .attr("r", "80%");
+
+        blackHoleGradient.selectAll("stop")
+            .data([
+                { offset: "20%", color: "#474F7A" },
+                { offset: "60%", color: "#96EFFF" }
+            ])
+            .enter().append("stop")
+            .attr("offset", function (d) { return d.offset; })
+            .attr("stop-color", function (d) { return d.color; });
+
+        // ======================================================================================
+
+        var tablegroup = outerGroupElement.append("g").attr("class", "table-content")
+
         function moveRequest(request, index, actionIndex) {
 
-            var requestImage = svg.select("#request-group" + request.id);
+            requestTtimeline(request)
+            const _a = request.timeline = Math.floor(Math.random() * (10000 - 1000 + 1)) + 1000;
+
+            var requestImage = svg.select("#plane" + index);
 
             var action = request.actions[actionIndex];
             var nextServer = performAction(action);
             var nextIndex = servers.indexOf(nextServer);
             var targetRect = nextIndex * (width) + (width) / 2;
+            var planRect = nextIndex * (width) / 4.4;
 
-            var groupElement = outerGroupElement.append('g')
+            var groupElement = tablegroup.append('g')
                 .attr("id", "rectTable-" + request.id)
                 .attr("transform", function () {
                     var row = Math.floor(index / 5);
@@ -158,7 +306,7 @@
                     return "translate(" + translateX + "," + translateY + ")";
                 });
 
-            var tableElement = outerGroupElement.append('g')
+            var tableElement = tablegroup.append('g')
                 .attr("id", "rectTableAm-" + request.id)
                 .attr("transform", function () {
                     var row = Math.floor(index / 5);
@@ -167,45 +315,31 @@
                     var translateY = row * 70;
                     return "translate(" + translateX + "," + translateY + ")";
                 });
+            var createBlackhole = tablegroup.append('g')
+                .attr("transform", function () {
+                    var row = Math.min(Math.floor(index / 3), 5);
+                    var col = index % 5;
+                    var translateX = col;
+                    var translateY = row * 50;
+                    return "translate(" + 10 + "," + translateY + ")";
+                })
 
-            if (request.actions[actionIndex + 1] === "unregister") {
-                var plangroupElement2 = outerGroupElement.append('g')
-                    .attr("transform", function () {
-                        var row = Math.floor(index / 1);
-                        var col = index % 1;
-                        var translateX = col * 80;
-                        var translateY = row * 15;
-                        return "translate(" + translateX + "," + translateY + ")";
-                    });
-                plangroupElement2.append("ellipse")
-                    .attr('id', 'ellipsegl_' + request.id)
-                    .attr("cx", 380)
-                    .attr("cy", 58)
-                    .attr("rx", 5)
-                    .attr("ry", 8)
-                    .attr("fill", "url(#blackHoleGradient")
-                    .attr("filter", "drop-shadow(0px 0px 2px #96EFFF)")
-                    .style("opacity", 0)
-                    .transition()
-                    .delay(request.timeline)
-                    .style("opacity", 1);
-            }
+
+            // ======================================================================================
 
             requestImage
                 .transition()
-                .duration(3000)
+                .duration(1500)
                 .delay(request.timeline)
-                .attr("transform", "translate(" + (targetRect - 100) + ", 0)")
-
+                .ease(d3.easeLinear)
+                .attr("transform", "translate(" + (planRect + 350) + ", 50)")
                 .on("end", function () {
                     groupElement.append("rect")
                         .attr("x", targetRect - 290)
                         .attr("y", 64)
                         .attr("width", 148)
                         .attr("height", 45)
-                        .style("fill", "#3652AD")
-
-
+                        .style("fill", getColor(request.status))
                         .style("stroke", "white")
                         .style("filter", "drop-shadow(2px 2px 8px rgb(33, 33, 34)")
                         .style("stroke-width", 1)
@@ -241,7 +375,6 @@
                         .attr("filter", "blur(0.1px)")
                         .attr("fill", "#41c2b1")
 
-
                     groupElement.append("text")
                         .attr("x", targetRect - 280)
                         .attr("y", 92)
@@ -249,7 +382,7 @@
                         .attr("fill", "#EAEAEA")
                         .attr("font-size", "14px")
                         .attr("font-weight", 500)
-                        .style("text-shadow", "0px 4px 5px black")
+                        .style("text-shadow", "3px 3px 5px black")
                         .style("opacity", 0)
                         .transition()
                         .delay(200)
@@ -279,7 +412,7 @@
 
                     const itemLight = [
                         { cx: targetRect - 260, cy: 70 },
-                        { cx: targetRect - 280 + 135, cy: 75 + 35 }
+                        { cx: targetRect - 280 + 120, cy: 75 + 35 }
                     ];
 
                     itemLight.forEach(corner => {
@@ -301,7 +434,6 @@
 
                         itemLightGroup.append("path")
                             .attr("class", "itemLightGroup")
-
                             .attr("d", `M ${corner.cx - 0.8} ${corner.cy} L ${corner.cx - 5} ${corner.cy - 5} L ${corner.cx + 1.5} ${corner.cy - 1.2} Z`)
                             .attr("fill", "#EAEAEA")
                             .style("filter", "blur(0.8px)")
@@ -313,7 +445,6 @@
 
                         itemLightGroup.append("path")
                             .attr("class", "itemLightGroup")
-
                             .attr("d", `M ${corner.cx - 0.8} ${corner.cy} L ${corner.cx - 5} ${corner.cy + 5}  L ${corner.cx + 1.5} ${corner.cy + 1.2} Z`)
                             .attr("fill", "#EAEAEA")
                             .style("filter", "blur(0.8px)")
@@ -322,9 +453,9 @@
                             .delay(500)
                             .duration(500)
                             .style("opacity", 0);
+
                         itemLightGroup.append("path")
                             .attr("class", "itemLightGroup")
-
                             .attr("d", `M ${corner.cx + 1} ${corner.cy} L ${corner.cx + 5} ${corner.cy - 5} L ${corner.cx - 1.5} ${corner.cy - 1.2} Z`)
                             .attr("fill", "#EAEAEA")
                             .style("filter", "blur(0.8px)")
@@ -333,9 +464,9 @@
                             .delay(500)
                             .duration(500)
                             .style("opacity", 0);
+
                         itemLightGroup.append("path")
                             .attr("class", "itemLightGroup")
-
                             .attr("d", `M ${corner.cx - 0.2} ${corner.cy + 1} L ${corner.cx + 5} ${corner.cy + 5} L ${corner.cx + 1.5} ${corner.cy - 1.2} Z`)
                             .attr("fill", "#EAEAEA")
                             .style("filter", "blur(0.8px)")
@@ -344,10 +475,9 @@
                             .delay(500)
                             .duration(500)
                             .style("opacity", 0);
-
                     });
 
-                    // ==========================
+                    // ======================================================================================
 
                     tableElement.append("rect")
                         .attr("x", targetRect - 200)
@@ -370,13 +500,15 @@
                         .attr("y", 75 + 18)
                         .attr("text-anchor", "middle")
                         .attr("fill", "#EAEAEA")
+                        .style("text-shadow", "3px 3px 5px black")
+
                         .attr("font-weight", 500)
                         .style("opacity", 0)
                         .transition()
                         .delay(500)
                         .duration(500)
                         .style("opacity", 1)
-                        .text("20")
+                        .text(idCounts[request.name]);
 
                     const light = [
                         { cx: targetRect - 200, cy: 77 },
@@ -435,129 +567,110 @@
                             .duration(500)
                             .style("opacity", 0);
                     });
+
                     if (actionIndex < request.actions.length - 1) {
                         moveRequest(request, index, actionIndex + 1);
+                    } else {
+                        moveRequest(data[index], index, 0)
                     }
+
                 });
 
-            // ===============================
+
+
+            // ======================================================================================
 
             if (nextServer === "unregister") {
-                requestImage.select("image")
-                    .attr("xlink:href", "./img/img_spaceship_gl.png");
-                requestImage.select("text")
-                    .attr("x", 70)
+                requestImage.select("#spaceship").attr("xlink:href", "./img/img_spaceship_gl.png");
+                transitionSpaceship(requestImage.select("#spaceship"), request);
+
+                requestImage.select("#spaceship-text").attr("x", 60);
+                transitionSpaceship(requestImage.select("#spaceship-text"), request);
+
+                requestImage.select("#spaceship-firer").attr("xlink:href", "./img/fire.webp").attr("x", -15).attr("y", -78).style("transform", "rotate(90deg)").style("filter", "hue-rotate(170deg)");
+                transitionSpaceship(requestImage.select("#spaceship-firer"), request);
+
+                createBlackhole.insert('ellipse').attr('id', 'ellipsegl_' + index).attr("cx", 0).attr("cy", 58).attr("rx", 5).attr("ry", 15).attr("fill", "url(#blackHoleGradient").attr("filter", "drop-shadow(0px 0px 2px #96EFFF)")
+                transitionSpaceship(createBlackhole.select("#ellipsegl_" + index), request, 0.8);
+
+                createBlackhole.insert('ellipse', ':first-child').attr('id', 'ellipsegl_' + index).attr("cx", 365).attr("cy", 58).attr("rx", 5).attr("ry", 15).attr("fill", "url(#blackHoleGradient").attr("filter", "drop-shadow(0px 0px 2px #96EFFF)")
+                transitionSpaceship(createBlackhole.select("#ellipsegl_" + index), request, 0.8);
+
+            } else if (nextServer === "WEB") {
+                requestImage.select("#spaceship").attr("xlink:href", "./img/img_spaceship_br.png");
+                transitionSpaceship(requestImage.select("#spaceship"), request);
+
+                requestImage.select("#spaceship-text").attr("x", -30);
+                transitionSpaceship(requestImage.select("#spaceship-text"), request);
+
+                requestImage.select("#spaceship-firer").attr("xlink:href", "./img/fire.webp").attr("x", -35).attr("y", -50).style("transform", "rotate(-90deg)").style("filter", "hue-rotate(200deg)");
+                transitionSpaceship(requestImage.select("#spaceship-firer"), request);
+
+                createBlackhole.insert('ellipse').attr('id', 'ellipsebr_' + index).attr("cx", 0).attr("cy", 58).attr("rx", 5).attr("ry", 15).attr("fill", "url(#blackHoleGradient").attr("filter", "drop-shadow(0px 0px 2px #96EFFF)")
+                transitionSpaceship(createBlackhole.select("#ellipsebr_" + index), request, 0.8);
+
+
+                createBlackhole.insert('ellipse', ':first-child').attr('id', 'ellipsebr_' + index).attr("cx", 365).attr("cy", 58).attr("rx", 5).attr("ry", 15).attr("fill", "url(#blackHoleGradient").attr("filter", "drop-shadow(0px 0px 2px #96EFFF)")
+                transitionSpaceship(createBlackhole.select("#ellipsebr_" + index), request, 0.8);
+
+            } else if (nextServer === null) {
+                requestImage.selectAll("#spaceship, #spaceship-firer, #spaceship-text").style("opacity", 0);
             }
 
-            // ===============================
+
+
+            // ======================================================================================
+
 
             if (action === "unregister") {
                 var requestId = request.id;
-                var rectGroup = d3.select("#rectTable-" + requestId);
-                rectGroup.select("rect")
-                    .style("fill", "transparent")
-                    .style("stroke", "white")
-                    .style("stroke-width", 2)
-                    .style("filter", "blur(0.6px)")
-                    .style("rx", 5)
-                    .style("ry", 5)
+                var rectGroup = d3.selectAll("[id^='rectTable-'][id$='-" + requestId + "']");
+                rectGroup.select("rect").style("stroke", "white").style("stroke-width", 2).style("fill", "transparent").style("filter", "blur(0.6px)").style("rx", 5).style("ry", 5)
                     .transition()
                     .duration(500)
                     .on("end", function () {
                         rectGroup.remove();
                     });
-                rectGroup.selectAll("text")
-                    .style("opacity", 0);
 
-                rectGroup.selectAll("circle")
-                    .style("opacity", 0);
-
-                rectGroup.selectAll("path")
-                    .attr("fill", "#EAEAEA")
-                    .attr("filter", "blur(1.5px)")
-
+                rectGroup.selectAll("text").style("opacity", 0);
+                rectGroup.selectAll("circle").style("opacity", 0);
+                rectGroup.selectAll("path").attr("fill", "#EAEAEA").attr("filter", "blur(1.5px)");
                 rectGroup.selectAll("circle").attr("class", "itemLightGroup").style("opacity", 1)
                 rectGroup.selectAll("path").attr("class", "itemLightGroup").style("opacity", 1)
 
-                d3.select("#rectTableAm-" + requestId).remove();
-                d3.select("#ellipsegl_" + requestId).remove();
-            }
-
-            // ===============================
-
-            if (action === "WEB") {
+                d3.selectAll("[id^='rectTableAm-'][id$='-" + requestId + "']").remove();
+                d3.selectAll("[id^='ellipsegl_'][id$='_" + index + "']").remove();
+            } else if (action === "WEB") {
                 var requestId = request.id;
-                d3.select("#ellipsebr_" + requestId).remove();
+                d3.selectAll("[id^='ellipsebr_'][id$='_" + index + "']").remove();
             }
+
         }
 
-        var planGroupElement = svg.insert('g', ':first-child').attr("id", "planGroup");
-        var defs = planGroupElement.append("defs");
 
-        var blackHoleGradient = defs.append("radialGradient")
-            .attr("id", "blackHoleGradient")
-            .attr("cx", "50%")
-            .attr("cy", "50%")
-            .attr("r", "80%");
 
-        blackHoleGradient.selectAll("stop")
-            .data([
-                { offset: "20%", color: "black" },
-                { offset: "60%", color: "#96EFFF" }
-            ])
-            .enter().append("stop")
-            .attr("offset", function (d) { return d.offset; })
-            .attr("stop-color", function (d) { return d.color; });
-
-        requests.forEach(function (request, index, actionIndex) {
-
+        data.forEach(function (request, index, actionIndex) {
             var plangroupElement = planGroupElement.append('g')
-                .attr("id", "plane")
                 .attr("transform", function () {
-                    var row = Math.floor(index / 1);
-                    var col = index % 1;
-                    var translateX = col * 80;
-                    var translateY = row * 15;
+                    var row = Math.min(Math.floor(index / 3), 5);
+                    var col = index % 5;
+                    var translateX = col;
+                    var translateY = row * 50;
                     return "translate(" + translateX + "," + translateY + ")";
                 })
 
             plangroupElement.append("g")
-                .attr("id", "request-group" + request.id)
-                .attr("transform", "translate(-50, 0)")
+                .attr("id", "plane" + index)
+                .attr("transform", "translate(20, 50)")
                 .each(function () {
-                    d3.select(this).append("image")
-                        .attr("xlink:href", "./img/img_spaceship_br.png")
-                        .attr("x", 20)
-                        .attr("y", 50)
-                        .style("opacity", 1);
-
-                    d3.select(this).append("text")
-                        .attr("x", 0)
-                        .attr("y", 50)
-                        .attr("fill", "#EAEAEA")
-                        .attr("font-size", "12px")
-                        .attr("text-anchor", "middle")
-                        .text(request.name);
+                    d3.select(this).append("image").attr("id", "spaceship")
+                    d3.select(this).append("image").attr("id", "spaceship-firer").attr("width", "50px").attr("height", "50px")
+                    d3.select(this).append("text").attr("id", "spaceship-text").attr("fill", "#EAEAEA").attr("font-size", "12px").attr("text-anchor", "middle").text(request.name)
                 });
 
-
-
-            plangroupElement.append("ellipse")
-                .attr('id', 'ellipsebr_' + request.id)
-                .attr("cx", 5)
-                .attr("cy", 58)
-                .attr("rx", 5)
-                .attr("ry", 8)
-                .attr("fill", "url(#blackHoleGradient")
-                .attr("filter", "drop-shadow(0px 0px 2px #96EFFF)")
-                .style("opacity", 0)
-                .transition()
-                .delay(request.timeline)
-                .style("opacity", 1);
             moveRequest(request, index, 0);
         });
     </script>
-
 </body>
 
 </html>
