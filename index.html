@@ -17,18 +17,10 @@
         }
 
         #system {
-            background-image: url("http://demo.idrsoft.com/apm/assets/images/apm_bg.png");
+            background-image: url("./img/apm_bg.png");
             background-size: cover;
             background-position: center;
             margin: 10px;
-        }
-
-        .danger {
-            background-color: red;
-        }
-
-        .warning {
-            background-color: yellow;
         }
     </style>
 </head>
@@ -37,639 +29,445 @@
 
     <svg id="system"></svg>
     <script>
-        let servers = ["WEB"];
-        var data = [
-            { id: "req1", name: '파주시청1', actions: ['register', 'WEB', 'unregister'] },
-            { id: "req2", name: '파주시청2', actions: ['register', 'WEB', 'unregister'] },
-            { id: "req3", name: '파주시청3', actions: ['register', 'WEB', 'unregister'] },
-            { id: "req4", name: '파주시청4', actions: ['register', 'WEB', 'unregister'] },
-            { id: "req5", name: '파주시청5', actions: ['register', 'WEB', 'unregister'] },
-            { id: "req6", name: '파주시청6', actions: ['register', 'WEB', 'unregister'] },
-            { id: "req7", name: '파주시청7', actions: ['register', 'WEB', 'unregister'] },
-            { id: "req8", name: '파주시청8', actions: ['register', 'WEB', 'unregister'] },
-            { id: "req9", name: '파주시청9', actions: ['register', 'WEB', 'unregister'] },
-            { id: "req10", name: '파주시청10', actions: ['register', 'WEB', 'unregister'] },
-            { id: "req11", name: '파주시청11', actions: ['register', 'WEB', 'unregister'] },
-            { id: "req12", name: '파주시청12', actions: ['register', 'WEB', 'unregister'] },
-            { id: "req13", name: '파주시청13', actions: ['register', 'WEB', 'unregister'] },
-            { id: "req14", name: '파주시청14', actions: ['register', 'WEB', 'unregister'] },
-            { id: "req15", name: '파주시청15', actions: ['register', 'WEB', 'unregister'] },
-            { id: "req16", name: '파주시청16', actions: ['register', 'WEB', 'unregister'] },
-            { id: "req17", name: '파주시청17', actions: ['register', 'WEB', 'unregister'] },
-            { id: "req18", name: '파주시청18', actions: ['register', 'WEB', 'unregister'] },
-            { id: "req19", name: '파주시청19', actions: ['register', 'WEB', 'unregister'] },
-            { id: "req20", name: '파주시청20', actions: ['register', 'WEB', 'unregister'] },
-        ];
-        let width = 1520;
-        let height = 380;
-        let timerID;
-        let idCounts = {};
+        d3.json("data.json").then((data) => {
 
-        var svg = d3.select("#system")
-            .attr("width", width)
-            .attr("height", height)
-            .append("g");
-        function getUUID() {
-            return 'xxxxxxxx-xxxx-4xxx-yxxx-xxxxxxxxxxxx'.replace(/[xy]/g, function (c) {
-                var r = Math.random() * 16 | 0, v = c == 'x' ? r : (r & 0x3 | 0x8);
-                return v.toString(16);
-            });
-        }
+            let width = 1520;
+            let height = 380;
+            let timerID;
+            var svg = d3.select("#system").attr("width", width).attr("height", height).append("g");
 
 
-        data.forEach(function (request) {
-            request.uuid = getUUID();
-            if (request.timeline >= 10000) {
-                request.status = 'danger';
-            } else if (request.timeline >= 5000) {
-                request.status = 'warning';
-            } else {
-                request.status = 'normal';
-            }
-
-            // ================
-
-            if (idCounts[request.name]) {
-                idCounts[request.name]++;
-            } else {
-                idCounts[request.name] = 1;
-            }
-        });
-
-
-
-
-        var outerGroupElement = svg.append('g').attr("id", "outerGroup");
-        outerGroupElement
-            .append("g")
-            .attr("class", "server-group")
-            .attr("transform", function (d, i) {
-                return "translate(" + (i * (width) + ((width)) / 4) + ", 10)";
-            })
-            .each(function (d, i) {
-
-                d3.select(this).append("image").attr("class", "server-image").attr("xlink:href", "./img/WAS55.png")
-
-                d3.select(this).append("circle")
-                    .attr("class", "server-circle")
-                    .attr("cx", 35)
-                    .attr("cy", 35)
-                    .attr("r", 6)
-                    .attr("stroke", "#1F2544")
-                    .attr("stroke-width", 0.5)
-                    .attr("filter", "brightness(1.2)")
-                    .attr("fill", "#53BDCF")
-                    .attr("cursor", "pointer")
-
-                d3.select(this).append("circle")
-                    .attr("class", "server-circle")
-                    .attr("cx", 35)
-                    .attr("cy", 55)
-                    .attr("r", 6)
-                    .attr("stroke", "#1F2544")
-                    .attr("stroke-width", 0.5)
-                    .attr("filter", "brightness(1.2)")
-                    .attr("fill", "#42A793")
-                    .attr("cursor", "pointer")
-
-                d3.select(this).append("text")
-                    .attr("class", "server-text")
-                    .attr("x", 35)
-                    .attr("y", 180)
-                    .attr("text-anchor", "middle")
-                    .attr("fill", "#EAEAEA")
-                    .attr("font-size", "16px")
-                    .attr("font-weight", 700)
-                    .style("text-shadow", "0px 0px 3px #ffffff")
-                    .style("filter", "brightness(2)")
-                    .text("WEB")
-            });
-
-
-
-
-        var progressBox = outerGroupElement.append("g").attr("class", "progress-box")
-
-        function createEqualizer() {
-            const _w = 29;
-            const colorScale = d3.scaleLinear()
-                .domain([0, 50, 100])
-                .range(["#ff0000", "#ffff00", "#13e913"]);
-
-            const equalizerGroup1 = progressBox.append("g")
-                .attr("transform", "translate(500, 35)");
-
-            const equalizerGroup2 = progressBox.append("g")
-                .attr("transform", "translate(500, 338)");
-
-            for (let index = 0; index < 100 / 3; index++) {
-                const gradient = Math.round(((index + 1) * 100) / 100) * 3;
-                const gradientColor = colorScale(gradient);
-                const x = index * (_w + 1);
-
-                equalizerGroup1.append("rect")
-                    .attr("class", "bar")
-                    .attr("x", x)
-                    .attr("y", 0)
-                    .attr("width", _w)
-                    .attr("height", 5)
-                    .attr("fill", gradientColor)
-                    .attr("rx", 2)
-                    .attr("ry", 2)
-                    .attr("opacity", index < 6 ? index * 0 : 0.7)
-                    .transition()
-                    .duration(1000)
-                    .attr("opacity", index < 12 ? index * 0 : 0.7)
-                    .transition()
-                    .duration(1000)
-                    .attr("opacity", 1);
-
-                equalizerGroup2.append("rect")
-                    .attr("class", "bar")
-                    .attr("x", x)
-                    .attr("y", 0)
-                    .attr("width", _w)
-                    .attr("height", 5)
-                    .attr("fill", gradientColor)
-                    .attr("rx", 2)
-                    .attr("ry", 2)
-                    .attr("opacity", index < 10 ? index * 0 : 0.7)
-                    .transition()
-                    .duration(1000)
-                    .attr("opacity", index < 4 ? index * 0 : 0.7)
-                    .transition()
-                    .duration(1000)
-                    .attr("opacity", 1);
-            }
-        }
-
-        if (timerID) {
-            clearInterval(timerID)
-        }
-        timerID = setInterval(function () {
-            d3.selectAll(".bar").remove();
-            createEqualizer();
-        }, 2000);
-
-        // ======================================================================================
-
-        function performAction(action) {
-            switch (action) {
-                case "register":
-                    return 'WEB';
-                case "WEB":
-                    return 'unregister';
-                case "unregister":
-                    return null;
-                default:
-                    return null;
-            }
-        }
-
-        // ======================================================================================
-
-        function getColor(status) {
-            switch (status) {
-                case 'normal':
-                    return '#3652AD';
-                case 'warning':
-                    return '#FFBB00';
-                case 'danger':
-                    return '#B31312';
-                default:
-                    return '#3652AD';
-            }
-        }
-        function requestTtimeline(request) {
-            if (request.timeline >= 9000) {
-                request.status = "danger";
-            } else if (request.timeline >= 5000) {
-                request.status = "warning";
-            } else {
-                request.status = "normal";
-            }
-        }
-
-
-        function transitionSpaceship(attributes, transitionParams, opacity = 1) {
-            attributes.style("opacity", 0)
-                .transition()
-                .duration(500)
-                .delay(transitionParams.timeline)
-                .style("opacity", opacity);
-        }
-
-
-        // ======================================================================================
-
-        var planGroupElement = svg.insert('g', ':first-child').attr("id", "planGroup");
-        var defs = planGroupElement.append("defs");
-        var blackHoleGradient = defs.append("radialGradient")
-            .attr("id", "blackHoleGradient")
-            .attr("cx", "50%")
-            .attr("cy", "50%")
-            .attr("r", "80%");
-
-        blackHoleGradient.selectAll("stop")
-            .data([
-                { offset: "20%", color: "#474F7A" },
-                { offset: "60%", color: "#96EFFF" }
-            ])
-            .enter().append("stop")
-            .attr("offset", function (d) { return d.offset; })
-            .attr("stop-color", function (d) { return d.color; });
-
-        // ======================================================================================
-
-        var tablegroup = outerGroupElement.append("g").attr("class", "table-content")
-
-        function moveRequest(request, index, actionIndex) {
-
-            requestTtimeline(request)
-            const _a = request.timeline = Math.floor(Math.random() * (10000 - 1000 + 1)) + 1000;
-
-            var requestImage = svg.select("#plane" + index);
-
-            var action = request.actions[actionIndex];
-            var nextServer = performAction(action);
-            var nextIndex = servers.indexOf(nextServer);
-            var targetRect = nextIndex * (width) + (width) / 2;
-            var planRect = nextIndex * (width) / 4.4;
-
-            var groupElement = tablegroup.append('g')
-                .attr("id", "rectTable-" + request.id)
-                .attr("transform", function () {
-                    var row = Math.floor(index / 5);
-                    var col = index % 5;
-                    var translateX = col * 195;
-                    var translateY = row * 70;
-                    return "translate(" + translateX + "," + translateY + ")";
-                });
-
-            var tableElement = tablegroup.append('g')
-                .attr("id", "rectTableAm-" + request.id)
-                .attr("transform", function () {
-                    var row = Math.floor(index / 5);
-                    var col = index % 5;
-                    var translateX = col * 195;
-                    var translateY = row * 70;
-                    return "translate(" + translateX + "," + translateY + ")";
-                });
-            var createBlackhole = tablegroup.append('g')
-                .attr("transform", function () {
-                    var row = Math.min(Math.floor(index / 3), 5);
-                    var col = index % 5;
-                    var translateX = col;
-                    var translateY = row * 50;
-                    return "translate(" + 10 + "," + translateY + ")";
+            var outerGroupElement = svg.append('g').attr("id", "outerGroup");
+            outerGroupElement
+                .append("g")
+                .attr("class", "server-group")
+                .attr("transform", function (d, i) {
+                    return "translate(" + (i * (width) + ((width)) / 4) + ", 10)";
                 })
+                .each(function (d, i) {
+                    d3.select(this).append("image").attr("class", "server-image").attr("xlink:href", "./img/WAS55.png")
 
+                    d3.select(this).append("circle")
+                        .attr("class", "server-circle")
+                        .attr("cx", 35)
+                        .attr("cy", 35)
+                        .attr("r", 6)
+                        .attr("stroke", "#1F2544")
+                        .attr("stroke-width", 0.5)
+                        .attr("filter", "brightness(1.2)")
+                        .attr("fill", "#53BDCF")
+                        .attr("cursor", "pointer")
 
-            // ======================================================================================
+                    d3.select(this).append("circle")
+                        .attr("class", "server-circle")
+                        .attr("cx", 35)
+                        .attr("cy", 55)
+                        .attr("r", 6)
+                        .attr("stroke", "#1F2544")
+                        .attr("stroke-width", 0.5)
+                        .attr("filter", "brightness(1.2)")
+                        .attr("fill", "#42A793")
+                        .attr("cursor", "pointer")
 
-            requestImage
-                .transition()
-                .duration(1500)
-                .delay(request.timeline)
-                .ease(d3.easeLinear)
-                .attr("transform", "translate(" + (planRect + 350) + ", 50)")
-                .on("end", function () {
-                    groupElement.append("rect")
-                        .attr("x", targetRect - 290)
-                        .attr("y", 64)
-                        .attr("width", 148)
-                        .attr("height", 45)
-                        .style("fill", getColor(request.status))
-                        .style("stroke", "white")
-                        .style("filter", "drop-shadow(2px 2px 8px rgb(33, 33, 34)")
-                        .style("stroke-width", 1)
-                        .style("rx", 5)
-                        .style("ry", 5)
-
-                    groupElement.append("rect")
-                        .attr("x", targetRect - 290)
-                        .attr("y", 64)
-                        .attr("width", 148)
-                        .attr("height", 45)
-                        .style("fill", "transparent")
-                        .style("stroke", "white")
-                        .style("filter", "drop-shadow(2px 2px 8px rgb(33, 33, 34)")
-                        .style("stroke-width", 2)
-                        .style("rx", 5)
-                        .style("ry", 5)
-                        .attr("filter", "blur(1.5px)")
-                        .style("opacity", 1)
-                        .transition()
-                        .delay(500)
-                        .duration(500)
-                        .attr("filter", "blur(0.1px)")
-                        .style("opacity", 0);
-
-                    groupElement.append("path")
-                        .attr("d", `M ${targetRect - 258},58 h100 v6 h-115 q0,4 4,4 h107 q4,0 4,-4 v-6 Z`)
-                        .attr("fill", "#EAEAEA")
-                        .attr("filter", "blur(1.5px)")
-                        .transition()
-                        .delay(500)
-                        .duration(500)
-                        .attr("filter", "blur(0.1px)")
-                        .attr("fill", "#41c2b1")
-
-                    groupElement.append("text")
-                        .attr("x", targetRect - 280)
-                        .attr("y", 92)
-                        .attr("text-anchor", "start")
-                        .attr("fill", "#EAEAEA")
-                        .attr("font-size", "14px")
-                        .attr("font-weight", 500)
-                        .style("text-shadow", "3px 3px 5px black")
-                        .style("opacity", 0)
-                        .transition()
-                        .delay(200)
-                        .duration(200)
-                        .style("opacity", 1)
-                        .text(request.name)
-
-                    const corners = [
-                        { cx: targetRect - 284, cy: 70 },
-                        { cx: targetRect - 284 + 135, cy: 70 },
-                        { cx: targetRect - 284, cy: 70 + 35 },
-                        { cx: targetRect - 284 + 135, cy: 70 + 35 }
-                    ];
-
-                    corners.forEach(corner => {
-                        groupElement.append("circle")
-                            .attr("cx", corner.cx)
-                            .attr("cy", corner.cy)
-                            .attr("r", 0.6)
-                            .style("opacity", 0)
-                            .transition()
-                            .delay(500)
-                            .duration(500)
-                            .style("opacity", 1)
-                            .attr("fill", "#EAEAEA")
-                    });
-
-                    const itemLight = [
-                        { cx: targetRect - 260, cy: 70 },
-                        { cx: targetRect - 280 + 120, cy: 75 + 35 }
-                    ];
-
-                    itemLight.forEach(corner => {
-                        var itemLightGroup = groupElement.append("g");
-
-                        itemLightGroup.append("circle")
-                            .attr("class", "itemLightGroup")
-                            .attr("cx", corner.cx)
-                            .attr("cy", corner.cy)
-                            .attr("r", 3)
-                            .attr("fill", "#EAEAEA")
-                            .style("filter", "blur(0.8px)")
-                            .style("opacity", 1)
-                            .transition()
-                            .delay(500)
-                            .duration(500)
-                            .style("opacity", 0)
-                            .attr("fill", "#EAEAEA")
-
-                        itemLightGroup.append("path")
-                            .attr("class", "itemLightGroup")
-                            .attr("d", `M ${corner.cx - 0.8} ${corner.cy} L ${corner.cx - 5} ${corner.cy - 5} L ${corner.cx + 1.5} ${corner.cy - 1.2} Z`)
-                            .attr("fill", "#EAEAEA")
-                            .style("filter", "blur(0.8px)")
-                            .style("opacity", 1)
-                            .transition()
-                            .delay(500)
-                            .duration(500)
-                            .style("opacity", 0);
-
-                        itemLightGroup.append("path")
-                            .attr("class", "itemLightGroup")
-                            .attr("d", `M ${corner.cx - 0.8} ${corner.cy} L ${corner.cx - 5} ${corner.cy + 5}  L ${corner.cx + 1.5} ${corner.cy + 1.2} Z`)
-                            .attr("fill", "#EAEAEA")
-                            .style("filter", "blur(0.8px)")
-                            .style("opacity", 1)
-                            .transition()
-                            .delay(500)
-                            .duration(500)
-                            .style("opacity", 0);
-
-                        itemLightGroup.append("path")
-                            .attr("class", "itemLightGroup")
-                            .attr("d", `M ${corner.cx + 1} ${corner.cy} L ${corner.cx + 5} ${corner.cy - 5} L ${corner.cx - 1.5} ${corner.cy - 1.2} Z`)
-                            .attr("fill", "#EAEAEA")
-                            .style("filter", "blur(0.8px)")
-                            .style("opacity", 1)
-                            .transition()
-                            .delay(500)
-                            .duration(500)
-                            .style("opacity", 0);
-
-                        itemLightGroup.append("path")
-                            .attr("class", "itemLightGroup")
-                            .attr("d", `M ${corner.cx - 0.2} ${corner.cy + 1} L ${corner.cx + 5} ${corner.cy + 5} L ${corner.cx + 1.5} ${corner.cy - 1.2} Z`)
-                            .attr("fill", "#EAEAEA")
-                            .style("filter", "blur(0.8px)")
-                            .style("opacity", 1)
-                            .transition()
-                            .delay(500)
-                            .duration(500)
-                            .style("opacity", 0);
-                    });
-
-                    // ======================================================================================
-
-                    tableElement.append("rect")
-                        .attr("x", targetRect - 200)
-                        .attr("y", 75)
-                        .attr("width", 38)
-                        .attr("height", 25)
-                        .style("fill", "transparent")
-                        .style("stroke", "#EAEAEA")
-                        .style("stroke-width", 2)
-                        .style("rx", 5)
-                        .style("ry", 5)
-                        .transition()
-                        .delay(500)
-                        .duration(500)
-                        .style("stroke-width", 1)
-                        .style("fill", "#0C2D57")
-
-                    tableElement.append("text")
-                        .attr("x", targetRect - 200 + 19)
-                        .attr("y", 75 + 18)
+                    d3.select(this).append("text")
+                        .attr("class", "server-text")
+                        .attr("x", 35)
+                        .attr("y", 180)
                         .attr("text-anchor", "middle")
                         .attr("fill", "#EAEAEA")
-                        .style("text-shadow", "3px 3px 5px black")
-
-                        .attr("font-weight", 500)
-                        .style("opacity", 0)
-                        .transition()
-                        .delay(500)
-                        .duration(500)
-                        .style("opacity", 1)
-                        .text(idCounts[request.name]);
-
-                    const light = [
-                        { cx: targetRect - 200, cy: 77 },
-                        { cx: targetRect - 164, cy: 77 + 22 }
-                    ];
-
-                    light.forEach(corner => {
-                        var lightGroup = tableElement.append("g");
-                        lightGroup.append("circle")
-                            .attr("cx", corner.cx)
-                            .attr("cy", corner.cy)
-                            .attr("r", 3)
-                            .attr("fill", "#EAEAEA")
-                            .style("filter", "blur(0.8px)")
-                            .style("opacity", 1)
-                            .transition()
-                            .delay(500)
-                            .duration(500)
-                            .style("opacity", 0);
-
-                        lightGroup.append("path")
-                            .attr("d", `M ${corner.cx - 0.8} ${corner.cy} L ${corner.cx - 5} ${corner.cy - 5} L ${corner.cx + 1.5} ${corner.cy - 1.2} Z`)
-                            .attr("fill", "#EAEAEA")
-                            .style("filter", "blur(0.4px)")
-                            .style("opacity", 1)
-                            .transition()
-                            .delay(500)
-                            .duration(500)
-                            .style("opacity", 0);
-
-                        lightGroup.append("path")
-                            .attr("d", `M ${corner.cx - 0.8} ${corner.cy} L ${corner.cx - 5} ${corner.cy + 5}  L ${corner.cx + 1.5} ${corner.cy + 1.2} Z`)
-                            .attr("fill", "#EAEAEA")
-                            .style("filter", "blur(0.4px)")
-                            .style("opacity", 1)
-                            .transition()
-                            .delay(500)
-                            .duration(500)
-                            .style("opacity", 0);
-                        lightGroup.append("path")
-                            .attr("d", `M ${corner.cx + 1} ${corner.cy} L ${corner.cx + 5} ${corner.cy - 5} L ${corner.cx - 1.5} ${corner.cy - 1.2} Z`)
-                            .attr("fill", "#EAEAEA")
-                            .style("filter", "blur(0.4px)")
-                            .style("opacity", 1)
-                            .transition()
-                            .delay(500)
-                            .duration(500)
-                            .style("opacity", 0);
-                        lightGroup.append("path")
-                            .attr("d", `M ${corner.cx - 0.2} ${corner.cy + 1} L ${corner.cx + 5} ${corner.cy + 5} L ${corner.cx + 1.5} ${corner.cy - 1.2} Z`)
-                            .attr("fill", "#EAEAEA")
-                            .style("filter", "blur(0.4px)")
-                            .style("opacity", 1)
-                            .transition()
-                            .delay(500)
-                            .duration(500)
-                            .style("opacity", 0);
-                    });
-
-                    if (actionIndex < request.actions.length - 1) {
-                        moveRequest(request, index, actionIndex + 1);
-                    } else {
-                        moveRequest(data[index], index, 0)
-                    }
-
+                        .attr("font-size", "16px")
+                        .attr("font-weight", 700)
+                        .style("text-shadow", "0px 0px 3px #ffffff")
+                        .style("filter", "brightness(2)")
+                        .text("WEB")
                 });
 
 
+            var progressBox = outerGroupElement.append("g").attr("class", "progress-box")
 
-            // ======================================================================================
+            function createEqualizer() {
+                const _w = 29;
+                const colorScale = d3.scaleLinear()
+                    .domain([0, 50, 100])
+                    .range(["#13e913", "#ffff00", "#ff0000"]);
 
-            if (nextServer === "unregister") {
-                requestImage.select("#spaceship").attr("xlink:href", "./img/img_spaceship_gl.png");
-                transitionSpaceship(requestImage.select("#spaceship"), request);
+                const equalizerGroup1 = progressBox.append("g")
+                    .attr("transform", "translate(500, 35)");
 
-                requestImage.select("#spaceship-text").attr("x", 60);
-                transitionSpaceship(requestImage.select("#spaceship-text"), request);
+                const equalizerGroup2 = progressBox.append("g")
+                    .attr("transform", "translate(500, 338)");
 
-                requestImage.select("#spaceship-firer").attr("xlink:href", "./img/fire.webp").attr("x", -15).attr("y", -78).style("transform", "rotate(90deg)").style("filter", "hue-rotate(170deg)");
-                transitionSpaceship(requestImage.select("#spaceship-firer"), request);
+                for (let index = 0; index < 100 / 3; index++) {
+                    const gradient = Math.round(((index + 1) * 100) / 100) * 3;
+                    const gradientColor = colorScale(gradient);
+                    const x = index * (_w + 1);
 
-                createBlackhole.insert('ellipse').attr('id', 'ellipsegl_' + index).attr("cx", 0).attr("cy", 58).attr("rx", 5).attr("ry", 15).attr("fill", "url(#blackHoleGradient").attr("filter", "drop-shadow(0px 0px 2px #96EFFF)")
-                transitionSpaceship(createBlackhole.select("#ellipsegl_" + index), request, 0.8);
+                    equalizerGroup1.append("rect")
+                        .attr("class", "bar")
+                        .attr("x", x)
+                        .attr("y", 0)
+                        .attr("width", _w)
+                        .attr("height", 5)
+                        .attr("fill", gradientColor)
+                        .attr("rx", 2)
+                        .attr("ry", 2)
+                        .attr("opacity", index > 16 ? index * 0 : 0.7)
+                        .transition()
+                        .duration(1000)
+                        .attr("opacity", index > 12 ? index * 0 : 0.7)
+                        .transition()
+                        .duration(1000)
+                        .attr("opacity", 1);
 
-                createBlackhole.insert('ellipse', ':first-child').attr('id', 'ellipsegl_' + index).attr("cx", 365).attr("cy", 58).attr("rx", 5).attr("ry", 15).attr("fill", "url(#blackHoleGradient").attr("filter", "drop-shadow(0px 0px 2px #96EFFF)")
-                transitionSpaceship(createBlackhole.select("#ellipsegl_" + index), request, 0.8);
-
-            } else if (nextServer === "WEB") {
-                requestImage.select("#spaceship").attr("xlink:href", "./img/img_spaceship_br.png");
-                transitionSpaceship(requestImage.select("#spaceship"), request);
-
-                requestImage.select("#spaceship-text").attr("x", -30);
-                transitionSpaceship(requestImage.select("#spaceship-text"), request);
-
-                requestImage.select("#spaceship-firer").attr("xlink:href", "./img/fire.webp").attr("x", -35).attr("y", -50).style("transform", "rotate(-90deg)").style("filter", "hue-rotate(200deg)");
-                transitionSpaceship(requestImage.select("#spaceship-firer"), request);
-
-                createBlackhole.insert('ellipse').attr('id', 'ellipsebr_' + index).attr("cx", 0).attr("cy", 58).attr("rx", 5).attr("ry", 15).attr("fill", "url(#blackHoleGradient").attr("filter", "drop-shadow(0px 0px 2px #96EFFF)")
-                transitionSpaceship(createBlackhole.select("#ellipsebr_" + index), request, 0.8);
-
-
-                createBlackhole.insert('ellipse', ':first-child').attr('id', 'ellipsebr_' + index).attr("cx", 365).attr("cy", 58).attr("rx", 5).attr("ry", 15).attr("fill", "url(#blackHoleGradient").attr("filter", "drop-shadow(0px 0px 2px #96EFFF)")
-                transitionSpaceship(createBlackhole.select("#ellipsebr_" + index), request, 0.8);
-
-            } else if (nextServer === null) {
-                requestImage.selectAll("#spaceship, #spaceship-firer, #spaceship-text").style("opacity", 0);
+                    equalizerGroup2.append("rect")
+                        .attr("class", "bar")
+                        .attr("x", x)
+                        .attr("y", 0)
+                        .attr("width", _w)
+                        .attr("height", 5)
+                        .attr("fill", gradientColor)
+                        .attr("rx", 2)
+                        .attr("ry", 2)
+                        .attr("opacity", index > 10 ? index * 0 : 0.7)
+                        .transition()
+                        .duration(1000)
+                        .attr("opacity", index > 14 ? index * 0 : 0.7)
+                        .transition()
+                        .duration(1000)
+                        .attr("opacity", 1);
+                }
             }
 
+            if (timerID) {
+                clearInterval(timerID)
+            }
+            timerID = setInterval(function () {
+                d3.selectAll(".bar").remove();
+                createEqualizer();
+            }, 2000);
 
 
             // ======================================================================================
 
+            function performAction(action) {
+                switch (action) {
+                    case "register":
+                        return 'WEB';
+                    case "WEB":
+                        return 'unregister';
+                    case "unregister":
+                        return null;
+                    default:
+                        return null;
+                }
+            }
 
-            if (action === "unregister") {
-                var requestId = request.id;
-                var rectGroup = d3.selectAll("[id^='rectTable-'][id$='-" + requestId + "']");
-                rectGroup.select("rect").style("stroke", "white").style("stroke-width", 2).style("fill", "transparent").style("filter", "blur(0.6px)").style("rx", 5).style("ry", 5)
+            // ======================================================================================
+
+            function getColor(status) {
+                switch (status) {
+                    case 'normal':
+                        return '#3652AD';
+                    case 'warning':
+                        return '#FFBB00';
+                    case 'danger':
+                        return '#B31312';
+                    default:
+                        return '#3652AD';
+                }
+            }
+
+            function transitionSpaceship(attributes, transitionParams, opacity = 1) {
+                attributes.style("opacity", 0)
                     .transition()
                     .duration(500)
-                    .on("end", function () {
-                        rectGroup.remove();
-                    });
-
-                rectGroup.selectAll("text").style("opacity", 0);
-                rectGroup.selectAll("circle").style("opacity", 0);
-                rectGroup.selectAll("path").attr("fill", "#EAEAEA").attr("filter", "blur(1.5px)");
-                rectGroup.selectAll("circle").attr("class", "itemLightGroup").style("opacity", 1)
-                rectGroup.selectAll("path").attr("class", "itemLightGroup").style("opacity", 1)
-
-                d3.selectAll("[id^='rectTableAm-'][id$='-" + requestId + "']").remove();
-                d3.selectAll("[id^='ellipsegl_'][id$='_" + index + "']").remove();
-            } else if (action === "WEB") {
-                var requestId = request.id;
-                d3.selectAll("[id^='ellipsebr_'][id$='_" + index + "']").remove();
+                    .delay(transitionParams)
+                    .ease(d3.easeLinear)
+                    .style("opacity", opacity);
             }
 
-        }
+
+            // ======================================================================================
+
+            var planGroupElement = svg.insert('g', ':first-child').attr("id", "planGroup");
+            var defs = planGroupElement.append("defs");
+            var blackHoleGradient = defs.append("radialGradient")
+                .attr("id", "blackHoleGradient")
+                .attr("cx", "50%")
+                .attr("cy", "50%")
+                .attr("r", "80%");
+
+            blackHoleGradient.selectAll("stop")
+                .data([
+                    { offset: "20%", color: "#474F7A" },
+                    { offset: "60%", color: "#96EFFF" }
+                ])
+                .enter().append("stop")
+                .attr("offset", function (d) { return d.offset; })
+                .attr("stop-color", function (d) { return d.color; });
+
+            // ======================================================================================
+
+            var tablegroup = outerGroupElement.append("g").attr("class", "table-content")
+            function moveRequest(request, index, actionIndex, serviceIndex, dataService) {
+                request.timeline = Math.floor(Math.random() * 15000) + 1000;
+
+                request.timeout = Math.floor(Math.random() * 15000) + 1000;
+
+                var requestImage = svg.select("#plane" + request.id);
+                var action = request.actions[actionIndex];
+                var nextServer = performAction(action);
+                var nextIndex = request.actions[1].indexOf(nextServer);
+                var targetRect = nextIndex * (width) + (width) / 2;
+                var planRect = nextIndex * (width) / 4.4;
+
+                var groupElement = tablegroup.select('#rectTable-' + index);
+                if (groupElement.empty()) {
+                    groupElement = tablegroup.append("g")
+                        .attr("id", "rectTable-" + index)
+                        .attr("transform", function () {
+                            var row = Math.floor(index / 5);
+                            var col = index % 5;
+                            var translateX = col * 195;
+                            var translateY = row * 70;
+                            return "translate(" + translateX + "," + translateY + ")";
+                        });
+                }
+
+                var tableElement = tablegroup.select('#rectTableAm-' + index);
+                if (tableElement.empty()) {
+                    tableElement = tablegroup.append('g')
+                        .attr("id", "rectTableAm-" + index)
+                        .attr("transform", function () {
+                            var row = Math.floor(index / 5);
+                            var col = index % 5;
+                            var translateX = col * 195;
+                            var translateY = row * 70;
+                            return "translate(" + translateX + "," + translateY + ")";
+                        });
+                }
+
+                var createBlackhole = tablegroup.append('g')
+                    .attr("transform", function () {
+                        var row = Math.min(Math.floor(index / 3), 5);
+                        var col = index % 5;
+                        var translateX = col;
+                        var translateY = row * 50;
+                        return "translate(" + 10 + "," + translateY + ")";
+                    })
+
+                let time;
+                if (nextServer === "WEB") {
+                    time = request.timeline;
+                    if (request.timeline >= 9000) {
+                        request.status = "danger";
+                    } else if (request.timeline >= 5000) {
+                        request.status = "warning";
+                    } else {
+                        request.status = "normal";
+                    }
+                } else if (nextServer === "unregister") {
+                    time = request.timeout;
+                    if (request.timeout >= 9000) {
+                        request.status = "danger";
+                    } else if (request.timeout >= 5000) {
+                        request.status = "warning";
+                    } else {
+                        request.status = "normal";
+                    }
+                }
+                // ======================================================================================
+
+                requestImage
+                    .transition()
+                    .duration(1000)
+                    .delay(time)
+                    .ease(d3.easeLinear)
+                    .attr("transform", "translate(" + (planRect + 350) + ", 50)")
+                    .on("end", () => {
+                        var rectgroupElement = groupElement.select("rect").empty() ? groupElement.append("rect") : groupElement.select("rect");
+                        var pathgroupElement = groupElement.select("path").empty() ? groupElement.append("path") : groupElement.select("path");
+                        var circlegroupElement = groupElement.select("g").empty() ? groupElement.append("g") : groupElement.select("g");
+                        var textgroupElement = groupElement.select("text").empty() ? groupElement.append("text") : groupElement.select("text");
+                        var rectTableElement = tableElement.select("rect").empty() ? tableElement.append("rect") : tableElement.select("rect");
+                        var texttableElement = tableElement.select("text").empty() ? tableElement.append("text") : tableElement.select("text");
+
+                        rectgroupElement.attr("id", "rect-" + request.id).attr("x", 470)
+                            .attr("y", 64)
+                            .attr("width", 148)
+                            .attr("height", 45)
+                            .style("stroke", "white")
+                            .style("fill", "#3652AD")
+                            .style("filter", "drop-shadow(2px 2px 8px rgb(33, 33, 34)")
+                            .style("stroke-width", 2)
+                            .style("rx", 5)
+                            .style("ry", 5)
+                            .transition()
+                            .duration(500)
+                            .style("stroke-width", 1)
+                            .style("fill", getColor(request.status));
+
+                        pathgroupElement.attr("id", "rect-" + request.id).attr("d", `M ${500},58 h100 v6 h-115 q0,4 4,4 h107 q4,0 4,-4 v-6 Z`)
+                            .attr("fill", "#EAEAEA")
+                            .attr("filter", "blur(1.5px)")
+                            .transition()
+                            .duration(500)
+                            .attr("filter", "blur(0.1px)")
+                            .attr("fill", "#41c2b1")
+
+                        var coordinates = [
+                            { cx: 475, cy: 70 },
+                            { cx: 475 + 135, cy: 70 },
+                            { cx: 475, cy: 70 + 33 },
+                            { cx: 475 + 135, cy: 70 + 33 }
+                        ];
+
+                        coordinates.forEach(function (coord) {
+                            circlegroupElement.attr("id", "rect-" + request.id).append("circle")
+                                .attr("cx", coord.cx).attr("cy", coord.cy).attr("r", 0.6).style("opacity", 0).transition().style("opacity", 1).attr("fill", "#EAEAEA")
+                        });
+
+
+                        textgroupElement.attr("id", "rect-" + request.id).attr("x", 480)
+                            .attr("y", 92).attr("text-anchor", "start").attr("fill", "#EAEAEA").attr("font-size", "14px").attr("font-weight", 500).style("text-shadow", "3px 3px 5px black")
+                            .text(request.name)
 
 
 
-        data.forEach(function (request, index, actionIndex) {
-            var plangroupElement = planGroupElement.append('g')
-                .attr("transform", function () {
-                    var row = Math.min(Math.floor(index / 3), 5);
-                    var col = index % 5;
-                    var translateX = col;
-                    var translateY = row * 50;
-                    return "translate(" + translateX + "," + translateY + ")";
-                })
+                        const light = [
+                            { cx: 560, cy: 77 },
+                            { cx: 595, cy: 77 + 22 }
+                        ];
 
-            plangroupElement.append("g")
-                .attr("id", "plane" + index)
-                .attr("transform", "translate(20, 50)")
-                .each(function () {
-                    d3.select(this).append("image").attr("id", "spaceship")
-                    d3.select(this).append("image").attr("id", "spaceship-firer").attr("width", "50px").attr("height", "50px")
-                    d3.select(this).append("text").attr("id", "spaceship-text").attr("fill", "#EAEAEA").attr("font-size", "12px").attr("text-anchor", "middle").text(request.name)
+                        light.forEach(corner => {
+                            var lightGroup = tableElement.append("g").attr("id", "rect-" + request.id);
+
+                            lightGroup.append("circle").attr("cx", corner.cx).attr("cy", corner.cy).attr("r", 3)
+                                .attr("fill", "#EAEAEA").style("filter", "blur(0.4px)").style("opacity", 1).transition().duration(500).style("opacity", 0);
+
+
+                            lightGroup.append("path").attr("d", `M ${corner.cx - 0.8} ${corner.cy} L ${corner.cx - 5} ${corner.cy - 5} L ${corner.cx + 1.5} ${corner.cy - 1.2} Z`)
+                                .attr("fill", "#EAEAEA").style("filter", "blur(0.4px)").style("opacity", 1).transition().duration(500).style("opacity", 0);
+
+
+
+                            lightGroup.append("path").attr("d", `M ${corner.cx - 0.8} ${corner.cy} L ${corner.cx - 5} ${corner.cy + 5}  L ${corner.cx + 1.5} ${corner.cy + 1.2} Z`)
+                                .attr("fill", "#EAEAEA").style("filter", "blur(0.4px)").style("opacity", 1).transition().duration(500).style("opacity", 0);
+
+
+
+                            lightGroup.append("path").attr("d", `M ${corner.cx + 1} ${corner.cy} L ${corner.cx + 5} ${corner.cy - 5} L ${corner.cx - 1.5} ${corner.cy - 1.2} Z`)
+                                .attr("fill", "#EAEAEA").style("filter", "blur(0.4px)").style("opacity", 1).transition().duration(500).style("opacity", 0);
+
+
+
+                            lightGroup.append("path").attr("d", `M ${corner.cx - 0.2} ${corner.cy + 1} L ${corner.cx + 5} ${corner.cy + 5} L ${corner.cx + 1.5} ${corner.cy - 1.2} Z`)
+                                .attr("fill", "#EAEAEA").style("filter", "blur(0.4px)").style("opacity", 1).transition().duration(500).style("opacity", 0);
+                        });
+
+                        rectTableElement.attr("id", "rect-" + request.id).attr("x", 561).attr("y", 75).attr("width", 38).attr("height", 25)
+                            .style("fill", "transparent").style("stroke", "#EAEAEA").style("stroke-width", 2).style("rx", 5).style("ry", 5)
+                            .transition().duration(500).style("stroke-width", 1).style("fill", "#0C2D57");
+
+                        texttableElement.attr("id", "rect-" + request.id).attr("x", 580).attr("y", 93).attr("text-anchor", "middle").attr("fill", "#EAEAEA").attr("font-weight", 500);
+
+                        if (nextServer === "WEB") {
+                            var currentValue = parseInt(texttableElement.text(), 10) || 0;
+                            var newValue = currentValue + 1
+                            if (newValue === 1) {
+                                texttableElement.text(currentValue + 1).style('opacity', 0);
+                                tableElement.style('opacity', 0);
+                            } else {
+                                texttableElement.text(currentValue + 1).style('opacity', 1);
+                                tableElement.style('opacity', 1);
+                            }
+                        } else if (nextServer === "unregister") {
+                            var currentValue = parseInt(texttableElement.text(), 10) || 0;
+                            var newValue = currentValue - 1
+                            if (newValue === 1) {
+                                texttableElement.text(currentValue - 1).style('opacity', 0);
+                                tableElement.style('opacity', 0);
+                            } else {
+                                texttableElement.text(currentValue - 1).style('opacity', 1);
+                                tableElement.style('opacity', 1);
+                            } if (currentValue === 1) {
+                                d3.selectAll("#rect-" + request.id).remove();
+                            }
+                        }
+
+                        if (actionIndex < request.actions.length - 1) {
+                            moveRequest(request, index, actionIndex + 1, serviceIndex, dataService);
+                        }
+                    });
+
+
+                // ======================================================================================
+
+                if (nextServer === "unregister") {
+                    d3.selectAll("[id^='ellipsebr_'][id$='_" + request.id + "']").remove();
+                    requestImage.select("#spaceship").attr("xlink:href", "./img/img_spaceship_gl.png");
+                    transitionSpaceship(requestImage.select("#spaceship"), request.timeout);
+
+                    requestImage.select("#spaceship-text").attr("x", 60);
+                    transitionSpaceship(requestImage.select("#spaceship-text"), request.timeout);
+
+                    requestImage.select("#spaceship-firer").attr("xlink:href", "./img/fire.webp").attr("x", -15).attr("y", -78).style("transform", "rotate(90deg)").style("filter", "hue-rotate(170deg)");
+                    transitionSpaceship(requestImage.select("#spaceship-firer"), request.timeout);
+
+                    createBlackhole.append('ellipse').attr('id', 'ellipsegl_' + request.id).attr("cx", 365).attr("cy", 58).attr("rx", 5).attr("ry", 15).attr("fill", "url(#blackHoleGradient").attr("filter", "drop-shadow(0px 0px 2px #96EFFF)")
+                    transitionSpaceship(createBlackhole.select("#ellipsegl_" + request.id), request.timeout, 0.8);
+
+                } else if (nextServer === "WEB") {
+                    requestImage.select("#spaceship").attr("xlink:href", "./img/img_spaceship_br.png");
+                    transitionSpaceship(requestImage.select("#spaceship"), request.timeline);
+
+                    requestImage.select("#spaceship-text").attr("x", -30);
+                    transitionSpaceship(requestImage.select("#spaceship-text"), request.timeline);
+
+                    requestImage.select("#spaceship-firer").attr("xlink:href", "./img/fire.webp").attr("x", -35).attr("y", -50).style("transform", "rotate(-90deg)").style("filter", "hue-rotate(200deg)");
+                    transitionSpaceship(requestImage.select("#spaceship-firer"), request.timeline);
+
+                    createBlackhole.append('ellipse').attr('id', 'ellipsebr_' + request.id).attr("cx", 10).attr("cy", 58).attr("rx", 5).attr("ry", 15).attr("fill", "url(#blackHoleGradient").attr("filter", "drop-shadow(0px 0px 2px #96EFFF)")
+                    transitionSpaceship(createBlackhole.select("#ellipsebr_" + request.id), request.timeline, 0.8);
+
+
+                } else if (nextServer === null) {
+                    requestImage.selectAll("#spaceship, #spaceship-firer, #spaceship-text").style("opacity", 0);
+                    d3.selectAll("[id^='ellipsegl_'][id$='_" + request.id + "']").remove();
+                }
+
+                // ======================================================================================
+
+            }
+
+
+            data.forEach(function (dataService, index) {
+                dataService.listService.forEach(function (service, serviceIndex) {
+                    var plangroupElement = planGroupElement.append('g')
+                        .attr("transform", function () {
+                            var row = Math.min(Math.floor(index / 3), 5);
+                            var col = index % 5;
+                            var translateX = col;
+                            var translateY = row * 50;
+                            return "translate(" + translateX + "," + translateY + ")";
+                        })
+
+                    plangroupElement.append("g")
+                        .attr("id", "plane" + service.id)
+                        .attr("transform", "translate(20, 50)")
+                        .each(function () {
+                            d3.select(this).append("image").attr("id", "spaceship")
+                            d3.select(this).append("image").attr("id", "spaceship-firer").attr("width", "50px").attr("height", "50px")
+                            d3.select(this).append("text").attr("id", "spaceship-text").attr("fill", "#EAEAEA").attr("font-size", "12px").attr("text-anchor", "middle").text(service.name)
+                        });
+
+
+                    moveRequest(service, index, 0, serviceIndex, dataService);
+
                 });
+            });
 
-            moveRequest(request, index, 0);
-        });
+        })
     </script>
 </body>
 
