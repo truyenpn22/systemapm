@@ -122,7 +122,7 @@ class SystemApm {
                     .each(function () {
                         d3.select(this).append("image").attr("id", "spaceship");
                         d3.select(this).append("image").attr("id", "spaceship-firer").attr("width", "50px").attr("height", "50px");
-                        d3.select(this).append("text").attr("id", "spaceship-text").attr("fill", "#EAEAEA").attr("font-size", "12px").attr("text-anchor", "middle").text(service.id);
+                        d3.select(this).append("text").attr("id", "spaceship-text").attr("fill", "#EAEAEA").attr("font-size", "12px").attr("text-anchor", "middle").text(service.name);
                     });
                 this.moveRequest(service, index, 0, dataService, serviceIndex);
 
