@@ -24,12 +24,12 @@ The dataset is structured as follows:
 * `id`: “page1” Identifier of the service page.
 * `name`: ”service1” Name of the service.
 * `listService`:[...] List of services and the number of users participating in a page.
-    *`id`: “user1” Identifier of the service.
-    *`name`: ”service1” Name of the service.
-    *`actions`:[...] Actions that can be performed for the service.
-    *`timeIn`: Action start time (ms) from `register` action to `WEB`.
-    *`timeOut`: Action end time (ms) from `WEB` action to `unregister`.
-    *`status`: The status of the action will include 3 states: `normal`, `warning`, `danger`. The status will change
+    * `id`: “user1” Identifier of the service.
+    * `name`: ”service1” Name of the service.
+    * `actions`:[...] Actions that can be performed for the service.
+    * `timeIn`: Action start time (ms) from `register` action to `WEB`.
+    * `timeOut`: Action end time (ms) from `WEB` action to `unregister`.
+    * `status`: The status of the action will include 3 states: `normal`, `warning`, `danger`. The status will change
 over time of the data.
 
 ## Code Explanation
