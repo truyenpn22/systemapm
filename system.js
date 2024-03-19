@@ -20,6 +20,9 @@ class SystemApm {
         this.initializeData();
         this.createEqualizer();
         this.renderRequests();
+        this.createLinearGradient("gradient-normal", "#526dce", "#3652AD");
+        this.createLinearGradient("gradient-warning", "#FFBB00", "#ff8b24");
+        this.createLinearGradient("gradient-danger", "#CC3D3D", "#B31312");
 
     }
 
@@ -89,18 +92,7 @@ class SystemApm {
         }
     }
 
-    getColor(status) {
-        switch (status) {
-            case 'normal':
-                return '#3652AD';
-            case 'warning':
-                return '#FFBB00';
-            case 'danger':
-                return '#B31312';
-            default:
-                return '#3652AD';
-        }
-    }
+
 
     transitionSpaceship(attributes, transitionParams, opacity = 1) {
         attributes.style("opacity", 0).transition().duration(500).delay(transitionParams).ease(d3.easeLinear).style("opacity", opacity)
@@ -109,6 +101,9 @@ class SystemApm {
     renderRequests() {
         this.data.forEach((dataService, index) => {
             dataService.listService.forEach((service, serviceIndex) => {
+
+
+
                 let _pl = this.planGroup.append('g')
                     .attr("transform", function () {
                         let row = Math.min(Math.floor(index / 3), 5);
@@ -117,7 +112,7 @@ class SystemApm {
                     })
 
                 _pl.append("g")
-                    .attr("id", "" + service.name + "_" + service.id)
+                    .attr("id", "" + service.name + "_" + serviceIndex)
                     .attr("transform", "translate(0, 50)")
                     .each(function () {
                         d3.select(this).append("image").attr("id", "spaceship");
@@ -125,20 +120,41 @@ class SystemApm {
                         d3.select(this).append("text").attr("id", "spaceship-text").attr("fill", "#EAEAEA").attr("font-size", "12px").attr("text-anchor", "middle").text(service.name);
                     });
                 this.moveRequest(service, index, 0, dataService, serviceIndex);
-
             });
         });
     }
+    createLinearGradient(id, startColor, endColor) {
+        const gradient = this.tablegroup.append("defs")
+            .append("linearGradient")
+            .attr("id", id)
+            .attr("x1", "0%")
+            .attr("y1", "0%")
+            .attr("x2", "100%")
+            .attr("y2", "0%");
 
+        gradient.append("stop")
+            .attr("offset", "0%")
+            .attr("stop-color", startColor);
+
+        gradient.append("stop")
+            .attr("offset", "100%")
+            .attr("stop-color", endColor);
+    }
     moveRequest(request, index, actionIndex, dataService, serviceIndex) {
-        let requestImage = this.svg.select("#" + request.name + "_" + request.id);
+
+        let requestImage = this.svg.select("#" + request.name + "_" + serviceIndex);
         let action = request.actions[actionIndex];
         let nextServer = this.performAction(action);
         let nextIndex = request.actions[1].indexOf(nextServer);
-        let planRect = nextIndex * (this.width) / 4;
+        let planRect = nextIndex * (this.width) / 3.8;
 
         request.timeIn = Math.floor(Math.random() * 15000) + 1000;
         request.timeOut = Math.floor(Math.random() * 15000) + 1000;
+
+
+        // console.log("timeIn", request.id, request.timeIn);
+        // console.log("timeOut", request.id, request.timeOut);
+
 
         let groupElement = this.tablegroup.select('#rectTable-' + index);
         if (groupElement.empty()) {
@@ -150,7 +166,8 @@ class SystemApm {
                     let translateX = col * 195;
                     let translateY = row * 70;
                     return "translate(" + translateX + "," + translateY + ")";
-                });
+                })
+
         }
 
         let tableElement = this.tablegroup.select('#rectTableAm-' + index);
@@ -195,7 +212,6 @@ class SystemApm {
             }
         }
 
-
         requestImage
             .transition()
             .duration(1500)
@@ -203,73 +219,89 @@ class SystemApm {
             .ease(d3.easeLinear)
             .attr("transform", "translate(" + (planRect + 390) + ", 50)")
             .on("end", () => {
-
                 let rectgroupElement = groupElement.select("rect").empty() ? groupElement.insert("rect", ':first-child') : groupElement.select("rect");
                 let pathgroupElement = groupElement.select("path").empty() ? groupElement.append("path") : groupElement.select("path");
                 let textgroupElement = groupElement.select("text").empty() ? groupElement.append("text") : groupElement.select("text");
                 let circlegroupElement = groupElement.select("g").empty() ? groupElement.append("g") : groupElement.select("g");
+                let itemlightGroup = groupElement.select("#itemlightGroup").empty() ? groupElement.append("g") : groupElement.select("#itemlightGroup");
                 let rectTableElement = tableElement.select("rect").empty() ? tableElement.append("rect") : tableElement.select("rect");
                 let texttableElement = tableElement.select("text").empty() ? tableElement.append("text") : tableElement.select("text");
-                let lightGroup = tableElement.select("g").empty() ? tableElement.append("g") : tableElement.select("g");
+                let tablelightGroup = tableElement.select("g").empty() ? tableElement.append("g") : tableElement.select("g");
 
 
-                rectgroupElement.attr("x", 470).attr("y", 64).attr("width", 148).attr("height", 45)
-                    .style("stroke", "white").style("fill", "#3652AD").style("filter", "drop-shadow(2px 2px 8px rgb(33, 33, 34)").style("stroke-width", 4)
-                    .style("rx", 5).style("ry", 5).transition().duration(500).style("stroke-width", 1).style("fill", this.getColor(request.status));
+                rectgroupElement.attr("x", 470).attr("y", 64).attr("width", 148).attr("height", 45).style("stroke", "white")
+                    .style("filter", "drop-shadow(2px 2px 8px rgb(33, 33, 34))").style("stroke-width", 4).style("rx", 5).style("ry", 5)
+                    .transition().duration(500).style("opacity", 1).style("stroke-width", 1)
+                    .style("fill", () => {
+                        switch (request.status) {
+                            case "normal":
+                                return "url(#gradient-normal)";
+                            case "warning":
+                                return "url(#gradient-warning)";
+                            case "danger":
+                                return "url(#gradient-danger)";
+                            default:
+                                return "url(#gradient-normal)";
+                        }
+                    })
+
 
                 pathgroupElement.attr("d", `M ${500},58 h100 v6 h-115 q0,4 4,4 h107 q4,0 4,-4 v-6 Z`)
-                    .attr("fill", "#EAEAEA").attr("filter", "blur(1.5px)").transition().duration(500).attr("filter", "blur(0.1px)").attr("fill", "#41c2b1")
+                    .attr("fill", "#EAEAEA").attr("filter", "blur(1.5px)").transition().duration(500).style("opacity", 1).attr("filter", "blur(0.1px)").attr("fill", "#41c2b1")
 
                 textgroupElement.attr("x", 480).attr("y", 92).attr("text-anchor", "start").attr("fill", "#EAEAEA")
-                    .attr("font-size", "14px").attr("font-weight", 500).style("text-shadow", "3px 3px 5px black").text(request.name)
+                    .attr("font-size", "14px").attr("font-weight", 500).style("text-shadow", "3px 3px 5px black").style("opacity", 1).text(request.name)
 
                 rectTableElement.attr("x", 561).attr("y", 75).attr("width", 38).attr("height", 25)
                     .style("fill", "transparent").style("stroke", "#EAEAEA").style("stroke-width", 2).style("rx", 5).style("ry", 5)
-                    .transition().duration(500).style("stroke-width", 1).style("fill", "#0C2D57");
+                    .transition().duration(500).style("opacity", 1).style("stroke-width", 1).style("fill", "#0C2D57");
 
-                texttableElement.attr("x", 580).attr("y", 93)
-                    .attr("text-anchor", "middle").attr("fill", "#EAEAEA").attr("font-weight", 500);
+                texttableElement.attr("x", 580).attr("y", 93).attr("text-anchor", "middle").attr("fill", "#EAEAEA").attr("font-weight", 500).style("opacity", 1);
 
                 let coordinates = [{ cx: 475, cy: 70 }, { cx: 475 + 135, cy: 70 }, { cx: 475, cy: 70 + 33 }, { cx: 475 + 135, cy: 70 + 33 }];
-
-
                 coordinates.forEach(function (coord, i) {
                     const circle = circlegroupElement.select("#circle" + i);
                     if (circle.empty()) {
-                        circlegroupElement.append("circle")
-                            .attr("id", "circle" + i)
-                            .attr("cx", coord.cx)
-                            .attr("cy", coord.cy)
-                            .attr("r", 0.6)
-                            .style("opacity", 0)
-                            .transition()
-                            .duration(500)
-                            .style("opacity", 1)
-                            .attr("fill", "#EAEAEA");
+                        circlegroupElement.append("circle").attr("id", "circle" + i).attr("cx", coord.cx).attr("cy", coord.cy).attr("r", 0.6).attr("fill", "#EAEAEA");
                     }
                 });
 
-                const light = [{ cx: 562, cy: 77 }, { cx: 596, cy: 77 + 22 }, { cx: 500, cy: 65 }, { cx: 610, cy: 110 },];
+                let itemlight = [{ cx: 500, cy: 65 }, { cx: 595, cy: 110 },];
+                itemlight.forEach((d) => {
+                    itemlightGroup.append("ellipse").attr("cx", d.cx).attr("cy", d.cy).attr("rx", 5).attr("ry", 3).attr("fill", "#EAEAEA").style("filter", "blur(0.8px)")
+                        .style("opacity", 1).transition().duration(400).ease(d3.easeLinear).style("opacity", 0).remove()
+
+                    itemlightGroup.append("path").attr("d", `M ${d.cx - 0.8} ${d.cy} L ${d.cx - 8} ${d.cy - 8} L ${d.cx + 1.5} ${d.cy - 1.2} Z`)
+                        .attr("fill", "#EAEAEA").style("filter", "blur(0.8px)").style("opacity", 1).transition().duration(400).ease(d3.easeLinear).style("opacity", 0).remove()
+
+                    itemlightGroup.append("path").attr("d", `M ${d.cx - 0.8} ${d.cy} L ${d.cx - 8} ${d.cy + 8}  L ${d.cx + 1.5} ${d.cy + 1.2} Z`)
+                        .attr("fill", "#EAEAEA").style("filter", "blur(0.8px)").style("opacity", 1).transition().duration(400).ease(d3.easeLinear).style("opacity", 0).remove()
+
+                    itemlightGroup.append("path").attr("d", `M ${d.cx + 1} ${d.cy} L ${d.cx + 8} ${d.cy - 8} L ${d.cx - 1.5} ${d.cy - 1.2} Z`)
+                        .attr("fill", "#EAEAEA").style("filter", "blur(0.8px)").style("opacity", 1).transition().duration(400).ease(d3.easeLinear).style("opacity", 0).remove()
+
+                    itemlightGroup.append("path").attr("d", `M ${d.cx - 0.2} ${d.cy + 1} L ${d.cx + 8} ${d.cy + 8} L ${d.cx + 1.5} ${d.cy - 1.2} Z`)
+                        .attr("fill", "#EAEAEA").style("filter", "blur(0.8px)").style("opacity", 1).transition().duration(400).ease(d3.easeLinear).style("opacity", 0).remove()
+                });
+
+
+
+                let light = [{ cx: 562, cy: 77 }, { cx: 596, cy: 77 + 22 }];
                 light.forEach((corner) => {
-                    lightGroup.append("circle").attr("cx", corner.cx).attr("cy", corner.cy).attr("r", 3)
-                        .attr("fill", "#EAEAEA").style("filter", "blur(0.4px)").style("opacity", 1).transition().duration(500).ease(d3.easeLinear)
-                        .style("opacity", 0).remove()
+                    tablelightGroup.append("ellipse").attr("cx", corner.cx).attr("cy", corner.cy).attr("rx", 4).attr("ry", 1)
+                        .attr("fill", "#EAEAEA").style("filter", "blur(0.8px)").style("opacity", 1).transition().duration(500).ease(d3.easeLinear).style("opacity", 0).remove()
 
-                    lightGroup.append("path").attr("d", `M ${corner.cx - 0.8} ${corner.cy} L ${corner.cx - 5} ${corner.cy - 5} L ${corner.cx + 1.5} ${corner.cy - 1.2} Z`)
-                        .attr("fill", "#EAEAEA").style("opacity", 1).transition().duration(500).ease(d3.easeLinear)
-                        .style("opacity", 0).remove()
+                    tablelightGroup.append("path").attr("d", `M ${corner.cx - 0.8} ${corner.cy} L ${corner.cx - 7} ${corner.cy - 7} L ${corner.cx + 1.5} ${corner.cy - 1.2} Z`)
+                        .attr("fill", "#EAEAEA").style("filter", "blur(0.8px)").style("opacity", 1).transition().duration(500).ease(d3.easeLinear).style("opacity", 0).remove()
 
-                    lightGroup.append("path").attr("d", `M ${corner.cx - 0.8} ${corner.cy} L ${corner.cx - 5} ${corner.cy + 5}  L ${corner.cx + 1.5} ${corner.cy + 1.2} Z`)
-                        .attr("fill", "#EAEAEA").style("opacity", 1).transition().duration(500).ease(d3.easeLinear)
-                        .style("opacity", 0).remove()
+                    tablelightGroup.append("path").attr("d", `M ${corner.cx - 0.8} ${corner.cy} L ${corner.cx - 7} ${corner.cy + 7}  L ${corner.cx + 1.5} ${corner.cy + 1.2} Z`)
+                        .attr("fill", "#EAEAEA").style("filter", "blur(0.8px)").style("opacity", 1).transition().duration(500).ease(d3.easeLinear).style("opacity", 0).remove()
 
-                    lightGroup.append("path").attr("d", `M ${corner.cx + 1} ${corner.cy} L ${corner.cx + 5} ${corner.cy - 5} L ${corner.cx - 1.5} ${corner.cy - 1.2} Z`)
-                        .attr("fill", "#EAEAEA").style("opacity", 1).transition().duration(500).ease(d3.easeLinear)
-                        .style("opacity", 0).remove()
+                    tablelightGroup.append("path").attr("d", `M ${corner.cx + 1} ${corner.cy} L ${corner.cx + 7} ${corner.cy - 7} L ${corner.cx - 1.5} ${corner.cy - 1.2} Z`)
+                        .attr("fill", "#EAEAEA").style("filter", "blur(0.8px)").style("opacity", 1).transition().duration(500).ease(d3.easeLinear).style("opacity", 0).remove()
 
-                    lightGroup.append("path").attr("d", `M ${corner.cx - 0.2} ${corner.cy + 1} L ${corner.cx + 5} ${corner.cy + 5} L ${corner.cx + 1.5} ${corner.cy - 1.2} Z`)
-                        .attr("fill", "#EAEAEA").style("opacity", 1).transition().duration(500).ease(d3.easeLinear)
-                        .style("opacity", 0).remove()
+                    tablelightGroup.append("path").attr("d", `M ${corner.cx - 0.2} ${corner.cy + 1} L ${corner.cx + 7} ${corner.cy + 7} L ${corner.cx + 1.5} ${corner.cy - 1.2} Z`)
+                        .attr("fill", "#EAEAEA").style("filter", "blur(0.8px)").style("opacity", 1).transition().duration(500).ease(d3.easeLinear).style("opacity", 0).remove()
                 });
 
 
@@ -284,32 +316,45 @@ class SystemApm {
                     texttableElement.text(value).style('opacity', value === 1 ? 0 : 1);
                     tableElement.style('opacity', value === 1 ? 0 : 1);
                     if (currentValue === 1) {
-                        rectgroupElement.style("stroke", "white").style("stroke-width", 2).style("fill", "transparent").style("filter", "blur(0.6px)").style("rx", 5).style("ry", 5)
+                        rectgroupElement.style("stroke", "white")
+                            .style("filter", "blur(0.6px)")
+                            .style("rx", 5)
+                            .style("ry", 5)
                             .transition()
                             .duration(500)
-                            .ease(d3.easeLinear)
-                            .on("end", function () {
-                                rectgroupElement.remove()
-                                pathgroupElement.remove()
-                                textgroupElement.remove()
-                                rectTableElement.remove()
-                                texttableElement.remove()
-                                circlegroupElement.remove()
-                                lightGroup.remove()
-                            });
-                        pathgroupElement.transition().duration(200).ease(d3.easeLinear).attr("fill", "#EAEAEA").attr("filter", "blur(1.5px)");
-                        rectTableElement.remove()
-                        texttableElement.remove()
-                        lightGroup.remove()
-                        textgroupElement.remove()
-                        circlegroupElement.remove()
+                            .style("fill", "transparent")
+                            .style("stroke-width", 2)
+                            .tween("opacity", function () {
+                                const initialOpacity = parseFloat(d3.select(this).style("opacity"));
+                                return function (t) {
+                                    d3.select(this).style("opacity", initialOpacity * (1 - t));
+                                };
+                            })
+                            .on("end", () => {
+                                rectgroupElement.style("opacity", 0).remove()
+                                pathgroupElement.style("opacity", 0).remove()
+                                textgroupElement.style("opacity", 0).remove()
+                                rectTableElement.style("opacity", 0).remove()
+                                texttableElement.style("opacity", 0).remove()
+                                circlegroupElement.style("opacity", 0).remove()
+                                itemlightGroup.style("opacity", 0).remove()
+                                tablelightGroup.style("opacity", 0).remove()
+                            })
+                        pathgroupElement.style("opacity", 0).remove()
+                        rectTableElement.style("opacity", 0).remove()
+                        texttableElement.style("opacity", 0).remove()
+                        tablelightGroup.style("opacity", 0).remove()
+                        textgroupElement.style("opacity", 0).remove()
+                        circlegroupElement.style("opacity", 0).remove()
+                        itemlightGroup.style("opacity", 1)
                     }
                 }
 
                 if (actionIndex < request.actions.length - 1) {
-                    this.moveRequest(request, index, actionIndex + 1, serviceIndex, dataService);
+                    this.moveRequest(request, index, actionIndex + 1, dataService, serviceIndex);
                 }
             });
+
 
         if (nextServer === "unregister") {
             d3.selectAll("[id^='ellipsebr_'][id$='_" + request.id + "']").remove();
