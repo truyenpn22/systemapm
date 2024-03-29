@@ -3,35 +3,35 @@ class SystemApm {
         this.width = 1520;
         this.height = 380;
         this.timerID;
-        this.idCounts = {};
         this.data = config.data;
         this.timeWarning = config.timeWarning || 8000;
         this.timeDanger = config.timeDanger || 12000;
-
         this.svg = d3.select("#system").attr("width", this.width).attr("height", this.height).append("g");
         this.pannelGroup = this.svg.append('g').attr("class", "pannelGroup")
         this.spaceshipGroup = this.svg.insert('g', ':first-child').attr("class", "spaceshipGroup")
 
-        this.tablegroup = this.pannelGroup.append("g").attr("class", "table-content")
+        this.tablegroup = this.pannelGroup.append("g").attr("class", "table-content").attr("transform", (d, i) => "translate(-2, 10)")
+
         this.progressBox = this.pannelGroup.append("g").attr("class", "progress-box")
-        this.planGroup = this.spaceshipGroup.append('g').attr("class", "planGroup")
-        this.blackhole = this.spaceshipGroup.append('g').attr("class", "blackhole")
+        this.planGroup = this.spaceshipGroup.append('g').attr("class", "planGroup").attr("transform", (d, i) => "translate(0, 30)")
+        this.blackhole = this.spaceshipGroup.append('g').attr("class", "blackhole").attr("transform", (d, i) => "translate(0, 30)")
 
         this.initializeData();
         this.createEqualizer();
-        this.renderRequests();
+        this.renderRequests(this.data)
         this.createLinearGradient("gradient-normal", "#526dce", "#3652AD");
         this.createLinearGradient("gradient-warning", "#FFBB00", "#ff8b24");
         this.createLinearGradient("gradient-danger", "#CC3D3D", "#B31312");
 
+
     }
 
-
     initializeData() {
+
         this.pannelGroup.insert("g", ':first-child')
-            .attr("transform", (d, i) => "translate(" + (i * (this.width) + ((this.width)) / 4) + ", 10)")
+            .attr("transform", (d, i) => "translate(" + (i * (this.width) + ((this.width)) / 4) + ", 30)")
             .each(function (d, i) {
-                d3.select(this).append("image").attr("class", "server-image").attr("xlink:href", "./img/WAS55.png");
+                d3.select(this).append("image").attr("class", "server-image").attr("xlink:href", "./img/WEB.png");
 
                 d3.select(this).append("circle").attr("class", "server-circle").attr("cx", 35).attr("cy", 35).attr("r", 6)
                     .attr("stroke", "#1F2544").attr("stroke-width", 0.5).attr("filter", "brightness(1.2)").attr("fill", "#53BDCF").attr("cursor", "pointer");
@@ -39,7 +39,7 @@ class SystemApm {
                 d3.select(this).append("circle").attr("class", "server-circle").attr("cx", 35).attr("cy", 55).attr("r", 6)
                     .attr("stroke", "#1F2544").attr("stroke-width", 0.5).attr("filter", "brightness(1.2)").attr("fill", "#42A793").attr("cursor", "pointer");
 
-                d3.select(this).append("text").attr("class", "server-text").attr("x", 35).attr("y", 180).attr("text-anchor", "middle").attr("fill", "#EAEAEA")
+                d3.select(this).append("text").attr("class", "server-text").attr("x", 35).attr("y", 160).attr("text-anchor", "middle").attr("fill", "#EAEAEA")
                     .attr("font-size", "16px").attr("font-weight", 700).style("text-shadow", "0px 0px 3px #ffffff").style("filter", "brightness(2)").text("WEB");
             });
     }
@@ -48,36 +48,47 @@ class SystemApm {
         const _w = 29;
         const colorScale = d3.scaleLinear().domain([0, 50, 100]).range(["#13e913", "#ffff00", "#ff0000"]);
 
-        const equalizerGroup1 = this.progressBox.append("g").attr("transform", "translate(500, 35)");
+        let equalizerGroup1 = this.progressBox.select('.equalizerGroup1');
+        let equalizerGroup2 = this.progressBox.select('.equalizerGroup2');
 
-        const equalizerGroup2 = this.progressBox.append("g").attr("transform", "translate(500, 338)");
+        if (equalizerGroup1.empty()) {
+            equalizerGroup1 = this.progressBox.append("g").attr("class", "equalizerGroup1").attr("transform", "translate(500, 50)");
+        }
+
+        if (equalizerGroup2.empty()) {
+            equalizerGroup2 = this.progressBox.append("g").attr("class", "equalizerGroup2").attr("transform", "translate(500, 315)");
+        }
 
         for (let index = 0; index < 100 / 3; index++) {
             const gradient = Math.round(((index + 1) * 100) / 100) * 3;
             const gradientColor = colorScale(gradient);
             const x = index * (_w + 1);
 
-            equalizerGroup1.append("rect").attr("class", "bar").attr("x", x).attr("y", 0)
-                .attr("width", _w).attr("height", 5).attr("fill", gradientColor).attr("rx", 2).attr("ry", 2)
-                .attr("opacity", index > 16 ? index * 0 : 0.7).transition().duration(1000).ease(d3.easeLinear)
-                .attr("opacity", index > 12 ? index * 0 : 0.7).transition().duration(1000).ease(d3.easeLinear)
-                .attr("opacity", 1);
+            let bar1 = equalizerGroup1.select(".bar:nth-child(" + (index + 1) + ")");
+            if (bar1.empty()) {
+                bar1 = equalizerGroup1.append("rect").attr("class", "bar");
+            }
+            bar1.attr("x", x).attr("y", 0).attr("width", _w).attr("height", 5).attr("fill", gradientColor).attr("rx", 2).attr("ry", 2)
+                .attr("opacity", index > 16 ? index * 0 : 0.7).transition().duration(1000).attr("opacity", index > 12 ? index * 0 : 0.7)
+                .transition().duration(1000).attr("opacity", 1);
 
-            equalizerGroup2.append("rect").attr("class", "bar").attr("x", x).attr("y", 0)
-                .attr("width", _w).attr("height", 5).attr("fill", gradientColor).attr("rx", 2).attr("ry", 2)
-                .attr("opacity", index > 10 ? index * 0 : 0.7).transition().duration(1000).ease(d3.easeLinear)
-                .attr("opacity", index > 14 ? index * 0 : 0.7).transition().duration(1000).ease(d3.easeLinear)
-                .attr("opacity", 1);
+            let bar2 = equalizerGroup2.select(".bar:nth-child(" + (index + 1) + ")");
+            if (bar2.empty()) {
+                bar2 = equalizerGroup2.append("rect").attr("class", "bar");
+            }
+            bar2.attr("x", x).attr("y", 0).attr("width", _w).attr("height", 5).attr("fill", gradientColor).attr("rx", 2).attr("ry", 2)
+                .attr("opacity", index > 10 ? index * 0 : 0.7).transition().duration(1000).attr("opacity", index > 14 ? index * 0 : 0.7)
+                .transition().duration(1000).attr("opacity", 1);
         }
+
         if (this.timerID) {
             clearInterval(this.timerID)
         }
         this.timerID = setInterval(() => {
-            d3.selectAll(".bar").remove();
             this.createEqualizer();
         }, 2000);
-
     }
+
 
     performAction(action) {
         switch (action) {
@@ -92,37 +103,10 @@ class SystemApm {
         }
     }
 
-
-
     transitionSpaceship(attributes, transitionParams, opacity = 1) {
         attributes.style("opacity", 0).transition().duration(500).delay(transitionParams).ease(d3.easeLinear).style("opacity", opacity)
     }
 
-    renderRequests() {
-        this.data.forEach((dataService, index) => {
-            dataService.listService.forEach((service, serviceIndex) => {
-
-
-
-                let _pl = this.planGroup.append('g')
-                    .attr("transform", function () {
-                        let row = Math.min(Math.floor(index / 3), 5);
-                        let col = index % 5;
-                        return "translate(" + col + "," + row * 50 + ")";
-                    })
-
-                _pl.append("g")
-                    .attr("id", "" + service.name + "_" + serviceIndex)
-                    .attr("transform", "translate(0, 50)")
-                    .each(function () {
-                        d3.select(this).append("image").attr("id", "spaceship");
-                        d3.select(this).append("image").attr("id", "spaceship-firer").attr("width", "50px").attr("height", "50px");
-                        d3.select(this).append("text").attr("id", "spaceship-text").attr("fill", "#EAEAEA").attr("font-size", "12px").attr("text-anchor", "middle").text(service.name);
-                    });
-                this.moveRequest(service, index, 0, dataService, serviceIndex);
-            });
-        });
-    }
     createLinearGradient(id, startColor, endColor) {
         const gradient = this.tablegroup.append("defs")
             .append("linearGradient")
@@ -140,21 +124,40 @@ class SystemApm {
             .attr("offset", "100%")
             .attr("stop-color", endColor);
     }
+
+
+    renderRequests(data) {
+        data.forEach((dataService, index) => {
+            dataService.listService.forEach((service, serviceIndex) => {
+                console.log(service);
+                let _pl = this.planGroup.append('g')
+                    .attr("transform", function () {
+                        let row = Math.min(Math.floor(index / 3), 5);
+                        let col = index % 5;
+                        return "translate(" + col + "," + row * 40 + ")";
+                    })
+
+                _pl.append("g")
+                    .attr("id", "" + service.name + "_" + service.id)
+                    .attr("transform", "translate(0, 50)")
+                    .each(function () {
+                        d3.select(this).append("image").attr("id", "spaceship");
+                        d3.select(this).append("image").attr("id", "spaceship-firer").attr("width", "40px").attr("height", "40px");
+                        d3.select(this).append("text").attr("id", "spaceship-text").attr("fill", "#EAEAEA").attr("font-size", "12px").attr("text-anchor", "middle").text(service.name);
+                    });
+                this.moveRequest(service, index, 0, dataService, serviceIndex);
+            });
+        });
+    }
+
     moveRequest(request, index, actionIndex, dataService, serviceIndex) {
 
-        let requestImage = this.svg.select("#" + request.name + "_" + serviceIndex);
+
+        let requestImage = this.svg.select("#" + request.name + "_" + request.id);
         let action = request.actions[actionIndex];
         let nextServer = this.performAction(action);
         let nextIndex = request.actions[1].indexOf(nextServer);
         let planRect = nextIndex * (this.width) / 3.8;
-
-        request.timeIn = Math.floor(Math.random() * 15000) + 1000;
-        request.timeOut = Math.floor(Math.random() * 15000) + 1000;
-
-
-        // console.log("timeIn", request.id, request.timeIn);
-        // console.log("timeOut", request.id, request.timeOut);
-
 
         let groupElement = this.tablegroup.select('#rectTable-' + index);
         if (groupElement.empty()) {
@@ -163,12 +166,12 @@ class SystemApm {
                 .attr("transform", function () {
                     let row = Math.floor(index / 5);
                     let col = index % 5;
-                    let translateX = col * 195;
-                    let translateY = row * 70;
+                    let translateX = col * 188;
+                    let translateY = row * 60;
                     return "translate(" + translateX + "," + translateY + ")";
                 })
-
         }
+
 
         let tableElement = this.tablegroup.select('#rectTableAm-' + index);
         if (tableElement.empty()) {
@@ -177,18 +180,22 @@ class SystemApm {
                 .attr("transform", function () {
                     let row = Math.floor(index / 5);
                     let col = index % 5;
-                    let translateX = col * 195;
-                    let translateY = row * 70;
+                    let translateX = col * 188;
+                    let translateY = row * 60;
                     return "translate(" + translateX + "," + translateY + ")";
                 });
         }
+        let createBlackhole = this.blackhole.select("#blackhole-" + index)
 
-        let createBlackhole = this.blackhole.append('g')
-            .attr("transform", function () {
-                let row = Math.min(Math.floor(index / 3), 5);
-                let translateY = row * 50;
-                return "translate(" + 10 + "," + translateY + ")";
-            })
+        if (createBlackhole.empty()) {
+            createBlackhole = this.blackhole.append('g')
+                .attr("id", "blackhole-" + index)
+                .attr("transform", function () {
+                    let row = Math.min(Math.floor(index / 3), 5);
+                    let translateY = row * 40;
+                    return "translate(" + 10 + "," + translateY + ")";
+                });
+        }
 
 
         let time;
@@ -211,6 +218,11 @@ class SystemApm {
                 request.status = "normal";
             }
         }
+
+
+
+
+
 
         requestImage
             .transition()
@@ -266,7 +278,7 @@ class SystemApm {
                     }
                 });
 
-                let itemlight = [{ cx: 500, cy: 65 }, { cx: 595, cy: 110 },];
+                let itemlight = [{ cx: 500, cy: 65 }, { cx: 595, cy: 110 }];
                 itemlight.forEach((d) => {
                     itemlightGroup.append("ellipse").attr("cx", d.cx).attr("cy", d.cy).attr("rx", 5).attr("ry", 3).attr("fill", "#EAEAEA").style("filter", "blur(0.8px)")
                         .style("opacity", 1).transition().duration(400).ease(d3.easeLinear).style("opacity", 0).remove()
@@ -283,8 +295,6 @@ class SystemApm {
                     itemlightGroup.append("path").attr("d", `M ${d.cx - 0.2} ${d.cy + 1} L ${d.cx + 8} ${d.cy + 8} L ${d.cx + 1.5} ${d.cy - 1.2} Z`)
                         .attr("fill", "#EAEAEA").style("filter", "blur(0.8px)").style("opacity", 1).transition().duration(400).ease(d3.easeLinear).style("opacity", 0).remove()
                 });
-
-
 
                 let light = [{ cx: 562, cy: 77 }, { cx: 596, cy: 77 + 22 }];
                 light.forEach((corner) => {
@@ -343,9 +353,9 @@ class SystemApm {
                         pathgroupElement.style("opacity", 0).remove()
                         rectTableElement.style("opacity", 0).remove()
                         texttableElement.style("opacity", 0).remove()
-                        tablelightGroup.style("opacity", 0).remove()
                         textgroupElement.style("opacity", 0).remove()
                         circlegroupElement.style("opacity", 0).remove()
+                        tablelightGroup.style("opacity", 0).remove()
                         itemlightGroup.style("opacity", 1)
                     }
                 }
@@ -353,39 +363,55 @@ class SystemApm {
                 if (actionIndex < request.actions.length - 1) {
                     this.moveRequest(request, index, actionIndex + 1, dataService, serviceIndex);
                 }
+
             });
 
 
+
+
+
+
         if (nextServer === "unregister") {
-            d3.selectAll("[id^='ellipsebr_'][id$='_" + request.id + "']").remove();
+            let createBlackhole22 = createBlackhole.select("#ellipsegl_" + request.id).empty() ? createBlackhole.append("ellipse").attr('id', 'ellipsegl_' + request.id) : createBlackhole.select("#ellipsegl_" + request.id);
+
+            d3.select("#ellipsebr_" + request.id).remove();
+
             requestImage.select("#spaceship").attr("xlink:href", "./img/img_spaceship_gl.png");
             this.transitionSpaceship(requestImage.select("#spaceship"), time);
 
-            requestImage.select("#spaceship-text").attr("x", 60);
+            requestImage.select("#spaceship-text").attr("x", 60).attr("fill", "#EAEAEA").attr("font-size", "12px").attr("text-anchor", "middle").text(request.name);
             this.transitionSpaceship(requestImage.select("#spaceship-text"), time);
 
-            requestImage.select("#spaceship-firer").attr("xlink:href", "./img/fire.webp").attr("x", -15).attr("y", -78).style("transform", "rotate(90deg)").style("filter", "hue-rotate(170deg)");
+            requestImage.select("#spaceship-firer").attr("xlink:href", "./img/fire.webp").attr("x", -10).attr("y", -70).style("transform", "rotate(90deg)").style("filter", "hue-rotate(170deg)");
             this.transitionSpaceship(requestImage.select("#spaceship-firer"), time);
 
-            createBlackhole.append('ellipse').attr('id', 'ellipsegl_' + request.id).attr("cx", 365).attr("cy", 58).attr("rx", 5).attr("ry", 12).attr("filter", "drop-shadow(0px 0px 2px #96EFFF)")
-            this.transitionSpaceship(createBlackhole.select("#ellipsegl_" + request.id), time, 0.8);
+
+            createBlackhole22.attr("cx", 365).attr("cy", 58).attr("rx", 5).attr("ry", 10).attr("filter", "drop-shadow(0px 0px 3px #96EFFF)")
+                .attr("opacity", 0).transition().delay(time).ease(d3.easeLinear).attr("opacity", 1);
 
         } else if (nextServer === "WEB") {
+            let createBlackhole22 = createBlackhole.select("#ellipsebr_" + request.id).empty() ? createBlackhole.append("ellipse").attr('id', 'ellipsebr_' + request.id) : createBlackhole.select("#ellipsebr_" + request.id);
+
             requestImage.select("#spaceship").attr("xlink:href", "./img/img_spaceship_br.png");
             this.transitionSpaceship(requestImage.select("#spaceship"), time);
 
-            requestImage.select("#spaceship-text").attr("x", -30);
+            requestImage.select("#spaceship-text").attr("x", -30).attr("fill", "#EAEAEA").attr("font-size", "12px").attr("text-anchor", "middle").text(request.name);
             this.transitionSpaceship(requestImage.select("#spaceship-text"), time);
 
-            requestImage.select("#spaceship-firer").attr("xlink:href", "./img/fire.webp").attr("x", -35).attr("y", -50).style("transform", "rotate(-90deg)").style("filter", "hue-rotate(200deg)");
+            requestImage.select("#spaceship-firer").attr("xlink:href", "./img/fire.webp").attr("x", -30).attr("y", -42).style("transform", "rotate(-90deg)").style("filter", "hue-rotate(200deg)");
             this.transitionSpaceship(requestImage.select("#spaceship-firer"), time);
 
-            createBlackhole.append('ellipse').attr('id', 'ellipsebr_' + request.id).attr("cx", 10).attr("cy", 58).attr("rx", 5).attr("ry", 12).attr("filter", "drop-shadow(0px 0px 3px #96EFFF)")
-            this.transitionSpaceship(createBlackhole.select("#ellipsebr_" + request.id), time, 0.8);
+            createBlackhole22.attr("cx", 10).attr("cy", 58).attr("rx", 5).attr("ry", 10).attr("filter", "drop-shadow(0px 0px 3px #96EFFF)")
+                .attr("opacity", 0).transition().delay(time).ease(d3.easeLinear).attr("opacity", 1);
 
-        } else if (nextServer === null) {
-            requestImage.selectAll("#spaceship, #spaceship-firer, #spaceship-text").remove();
-            d3.selectAll("[id^='ellipsegl_'][id$='_" + request.id + "']").remove();
         }
+        else if (nextServer === null) {
+            d3.selectAll("#" + request.name + "_" + request.id).remove();
+            d3.selectAll("#" + request.name + "_" + serviceIndex).remove()
+            d3.select("#ellipsegl_" + request.id).remove();
+        }
+
     }
+
 }
+

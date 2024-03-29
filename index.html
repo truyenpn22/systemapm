@@ -6388,13 +6388,51 @@
   <script src="./treemap_data.js"></script>
   <script src="./system.js"></script>
   <script>
-    d3.json("data.json").then(function (data) {
-      const networkchart = new SystemApm({
-        data: data,
-        timeWarning: 8000,
-        timeDanger: 12000
-      })
-    })
+    let socket;
+
+    let networkchart = new SystemApm({
+      data: [],
+      timeWarning: 8000,
+      timeDanger: 12000
+    });
+    function connectSocket() {
+      socket = new WebSocket('ws://localhost:5500');
+
+      socket.onopen = function (event) {
+        console.log("WebSocket connected successfully!");
+      };
+      socket.onmessage = function (event) {
+        const data = JSON.parse(event.data);
+        if (networkchart) {
+          networkchart.renderRequests(data);
+        }
+      };
+      socket.onerror = function (error) {
+        console.error("WebSocket error:", error);
+      };
+    }
+
+    function reconnectSocket() {
+      if (socket.readyState !== WebSocket.OPEN) {
+        connectSocket();
+      }
+    }
+    document.addEventListener("visibilitychange", function () {
+      if (document.visibilityState === 'visible' && !networkchart) {
+        reconnectSocket();
+        networkchart = new SystemApm({
+          data: [],
+          timeWarning: 8000,
+          timeDanger: 12000
+        });
+      } else {
+        d3.select("#system").selectAll("*").remove();
+        networkchart = null;
+      }
+    });
+
+
+    connectSocket();
   </script>
   <script>
     const treemap = new TreemapChart(document.getElementById("chart-container"), data, { animateTime: 1200 }).render()
