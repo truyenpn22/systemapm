@@ -59,6 +59,9 @@ class SystemApm {
             equalizerGroup2 = this.progressBox.append("g").attr("class", "equalizerGroup2").attr("transform", "translate(500, 315)");
         }
 
+        const numberProgress1 = (Math.floor(Math.random() * 10) + 8)
+        const numberProgress2 = (Math.floor(Math.random() * 10) + 8)
+
         for (let index = 0; index < 100 / 3; index++) {
             const gradient = Math.round(((index + 1) * 100) / 100) * 3;
             const gradientColor = colorScale(gradient);
@@ -69,16 +72,16 @@ class SystemApm {
                 bar1 = equalizerGroup1.append("rect").attr("class", "bar");
             }
             bar1.attr("x", x).attr("y", 0).attr("width", _w).attr("height", 5).attr("fill", gradientColor).attr("rx", 2).attr("ry", 2)
-                .attr("opacity", index > 16 ? index * 0 : 0.7).transition().duration(1000).attr("opacity", index > 12 ? index * 0 : 0.7)
-                .transition().duration(1000).attr("opacity", 1);
+                .attr("opacity", index > numberProgress1 ? index * 0 : 0.7).transition().duration(1000).ease(d3.easeLinear)
+                .attr("opacity", index > numberProgress1 ? index * 0 : 0.7).transition().duration(1000).ease(d3.easeLinear).attr("opacity", 1);
 
             let bar2 = equalizerGroup2.select(".bar:nth-child(" + (index + 1) + ")");
             if (bar2.empty()) {
                 bar2 = equalizerGroup2.append("rect").attr("class", "bar");
             }
             bar2.attr("x", x).attr("y", 0).attr("width", _w).attr("height", 5).attr("fill", gradientColor).attr("rx", 2).attr("ry", 2)
-                .attr("opacity", index > 10 ? index * 0 : 0.7).transition().duration(1000).attr("opacity", index > 14 ? index * 0 : 0.7)
-                .transition().duration(1000).attr("opacity", 1);
+                .attr("opacity", index > numberProgress2 ? index * 0 : 0.7).transition().duration(1000).ease(d3.easeLinear)
+                .attr("opacity", index > numberProgress2 ? index * 0 : 0.7).transition().duration(1000).ease(d3.easeLinear).attr("opacity", 1);
         }
 
         if (this.timerID) {
@@ -151,7 +154,6 @@ class SystemApm {
     }
 
     moveRequest(request, index, actionIndex, dataService, serviceIndex) {
-
 
         let requestImage = this.svg.select("#" + request.name + "_" + request.id);
         let action = request.actions[actionIndex];

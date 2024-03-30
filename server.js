@@ -59,7 +59,6 @@ function generateServiceData() {
             }
             return serviceDataArray;
         }),
-        mergeMap(serviceDataArray => rxjs.of(serviceDataArray).pipe(delay(5000)))
     );
 }
 
@@ -76,6 +75,7 @@ wss.on('connection', function connection(ws) {
         console.log('Client has disconnected.');
         subscription.unsubscribe();
     });
+
 });
 
 server.listen(port, () => {
