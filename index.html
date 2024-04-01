@@ -6396,30 +6396,24 @@
       timeDanger: 12000
     });
     function connectSocket() {
-      socket = new WebSocket('ws://localhost:5500');
+      socket = new WebSocket('ws://localhost:3000');
 
       socket.onopen = function (event) {
         console.log("WebSocket connected successfully!");
       };
       socket.onmessage = function (event) {
         const data = JSON.parse(event.data);
-        if (networkchart) {
-          networkchart.renderRequests(data);
-        }
+        networkchart.renderRequests(data);
+
       };
       socket.onerror = function (error) {
         console.error("WebSocket error:", error);
       };
     }
 
-    function reconnectSocket() {
-      if (socket.readyState !== WebSocket.OPEN) {
-        connectSocket();
-      }
-    }
+
     document.addEventListener("visibilitychange", function () {
       if (document.visibilityState === 'visible' && !networkchart) {
-        reconnectSocket();
         networkchart = new SystemApm({
           data: [],
           timeWarning: 8000,
