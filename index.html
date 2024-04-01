@@ -6403,8 +6403,9 @@
       };
       socket.onmessage = function (event) {
         const data = JSON.parse(event.data);
-        networkchart.renderRequests(data);
-
+        if (networkchart) {
+          networkchart.renderRequests(data);
+        }
       };
       socket.onerror = function (error) {
         console.error("WebSocket error:", error);
