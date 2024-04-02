@@ -6411,7 +6411,9 @@
         console.error("WebSocket error:", error);
       };
       socket.onclose = function (params) {
-        networkchart.stopRequests()
+        if (networkchart) {
+          networkchart.stopRequests()
+        }
       }
     }
 
