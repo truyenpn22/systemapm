@@ -6410,6 +6410,9 @@
       socket.onerror = function (error) {
         console.error("WebSocket error:", error);
       };
+      socket.onclose = function (params) {
+        networkchart.stopRequests()
+      }
     }
 
 

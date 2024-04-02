@@ -23,6 +23,11 @@ class SystemApm {
         this.createLinearGradient("gradient-warning", "#FFBB00", "#ff8b24");
         this.createLinearGradient("gradient-danger", "#CC3D3D", "#B31312");
 
+    }
+    stopRequests() {
+        d3.selectAll(".planGroup").remove()
+        d3.selectAll(".blackhole").remove()
+        d3.selectAll(".table-content").remove()
 
     }
 
