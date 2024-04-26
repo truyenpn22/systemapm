@@ -1,13 +1,16 @@
 const express = require('express');
 const { WebSocketServer } = require('ws');
 const rxjs = require('rxjs');
+const http = require('http');
 const { map } = require('rxjs/operators');
 const app = express();
 const port = 3000;
 
 app.use(express.static(__dirname));
+const server = http.createServer(app);
 
-const wss = new WebSocketServer({ port: port });
+const wss = new WebSocketServer({ server });
+
 
 function generateServiceData() {
     return rxjs.interval(5000).pipe(
@@ -55,4 +58,7 @@ wss.on('connection', function connection(ws) {
     });
 });
 
-console.log(`WebSocket Server is running on http://localhost:${port}`);
+server.listen(port, () => {
+    console.log(`Server is running on http://localhost:${port}`);
+});
+
